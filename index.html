@@ -500,7 +500,7 @@ MULTILINESTRING((116.123 39.456,116.124 39.457),(116.125 39.458,116.126 39.459))
 
 WKT格式示例:
 POLYGON((116.123 39.456,116.124 39.457,116.125 39.458,116.123 39.456))
-MULTIPOLYGON(((116.123 39.456,116.124 39.457,116.125 39.458,116.123 39.456)))">116.404,39.915;116.405,39.920;116.410,39.918;116.404,39.915</textarea>
+MULTIPOLYGON(((116.123 39.456,116.124 39.457,116.125 39.458,116.123 39.456)))">116.419801,39.909222;116.419734,39.908797;116.419999,39.908748;116.42003,39.908894;116.420425,39.90888;116.420421,39.908869;116.420416,39.90916;116.419801,39.909222</textarea>
                 </div>
                 <div class="format-example">
                     提示: 多边形数据支持坐标串(首尾坐标需相同以闭合)和WKT(POLYGON/MULTIPOLYGON)格式
@@ -541,15 +541,15 @@ MULTIPOLYGON(((116.123 39.456,116.124 39.457,116.125 39.458,116.123 39.456)))">1
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             let currentMap = 'amap'; // 默认使用高德地图
-            let amap, baiduMap, amapView, baiduView;
+            let amap, baiduMap;
             let amapLayers = { points: [], lines: [], polygons: [] };
             let baiduLayers = { points: [], lines: [], polygons: [] };
             
             // 初始化高德地图
             function initAMap() {
                 amap = new AMap.Map('amap-container', {
-                    zoom: 14,
-                    center: [116.404, 39.915],
+                    zoom: 17,
+                    center: [116.420, 39.909],
                     viewMode: '3D'
                 });
             }
@@ -557,7 +557,7 @@ MULTIPOLYGON(((116.123 39.456,116.124 39.457,116.125 39.458,116.123 39.456)))">1
             // 初始化百度地图
             function initBaiduMap() {
                 baiduMap = new BMapGL.Map("baidu-container");
-                baiduMap.centerAndZoom(new BMapGL.Point(116.404, 39.915), 12);
+                baiduMap.centerAndZoom(new BMapGL.Point(116.420, 39.909), 17);
                 baiduMap.enableScrollWheelZoom(true);
                 baiduMap.setTilt(0);
                 baiduMap.setHeading(0);
@@ -709,13 +709,13 @@ MULTIPOLYGON(((116.123 39.456,116.124 39.457,116.125 39.458,116.123 39.456)))">1
                     });
                     
                     // 确保多边形闭合
-                    if (points.length > 0 && 
-                        (points[0][0] !== points[points.length-1][0] || 
-                         points[0][1] !== points[points.length-1][1])) {
-                        points.push([points[0][0], points[0][1]]);
-                    }
-                    
                     if (points.length >= 3) {
+                        // 检查首尾点是否相同，如果不同则添加首点使其闭合
+                        const firstPoint = points[0];
+                        const lastPoint = points[points.length - 1];
+                        if (firstPoint[0] !== lastPoint[0] || firstPoint[1] !== lastPoint[1]) {
+                            points.push([firstPoint[0], firstPoint[1]]);
+                        }
                         polygons.push([points]);
                     }
                 });
@@ -745,7 +745,9 @@ MULTIPOLYGON(((116.123 39.456,116.124 39.457,116.125 39.458,116.123 39.456)))">1
                 });
                 
                 // 调整视图
-                amap.setFitView(amapLayers.points);
+                if (amapLayers.points.length > 0) {
+                    amap.setFitView(amapLayers.points);
+                }
             }
             
             function showLinesAMap(lines) {
@@ -779,6 +781,8 @@ MULTIPOLYGON(((116.123 39.456,116.124 39.457,116.125 39.458,116.123 39.456)))">1
                 
                 if (polygons.length === 0) return;
                 
+                console.log('显示多边形数据:', polygons);
+                
                 polygons.forEach(polygonPaths => {
                     const polygon = new AMap.Polygon({
                         path: polygonPaths[0],
@@ -807,10 +811,7 @@ MULTIPOLYGON(((116.123 39.456,116.124 39.457,116.125 39.458,116.123 39.456)))">1
                 if (points.length === 0) return;
                 
                 points.forEach(point => {
-                    const marker = new BMapGL.Marker(new BMapGL.Point(point[0], point[1]), {
-                        icon: new BMapGL.Icon('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIiIGhlaWdodD0iMTIiIHZpZXdCb3g9IjAgMCAxMiAxMiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48Y2lyY2xlIGN4PSI2IiBjeT0iNiIgcj0iNiIgZmlsbD0iIzI4YTc0NSIvPjwvc3ZnPg==', 
-                        new BMapGL.Size(12, 12))
-                    });
+                    const marker = new BMapGL.Marker(new BMapGL.Point(point[0], point[1]));
                     baiduMap.addOverlay(marker);
                     baiduLayers.points.push(marker);
                 });
@@ -851,6 +852,8 @@ MULTIPOLYGON(((116.123 39.456,116.124 39.457,116.125 39.458,116.123 39.456)))">1
                 baiduLayers.polygons = [];
                 
                 if (polygons.length === 0) return;
+                
+                console.log('显示多边形数据:', polygons);
                 
                 const allPoints = [];
                 polygons.forEach(polygonPaths => {
@@ -920,6 +923,7 @@ MULTIPOLYGON(((116.123 39.456,116.124 39.457,116.125 39.458,116.123 39.456)))">1
                             showStatus(`成功显示 ${lines.length} 条线`, true);
                         } else if (activeTab === 'polygons') {
                             const polygons = parsePolygonsFromCoords(input);
+                            console.log('解析出的多边形:', polygons);
                             if (currentMap === 'amap') {
                                 showPolygonsAMap(polygons);
                             } else {
@@ -932,6 +936,7 @@ MULTIPOLYGON(((116.123 39.456,116.124 39.457,116.125 39.458,116.123 39.456)))">1
                     }
                 } catch (error) {
                     showStatus('解析错误: ' + error.message, false);
+                    console.error('解析错误:', error);
                 }
             }
             
