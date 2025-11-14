@@ -450,7 +450,7 @@
             <!-- 点数据标签页 -->
             <div class="tab-content" id="points-tab">
                 <div class="format-indicator" id="points-format-indicator">
-                    检测到格式: <strong>WKT</strong>
+                    检测到格式: <strong>坐标串</strong>
                 </div>
                 <div class="input-item">
                     <textarea id="points-input" placeholder="请输入点数据，支持以下格式：
@@ -470,7 +470,7 @@ MULTIPOINT((116.123 39.456),(116.124 39.457))">116.404,39.915;116.405,39.916;116
             <!-- 线数据标签页 -->
             <div class="tab-content" id="lines-tab">
                 <div class="format-indicator" id="lines-format-indicator">
-                    检测到格式: <strong>WKT</strong>
+                    检测到格式: <strong>坐标串</strong>
                 </div>
                 <div class="input-item">
                     <textarea id="lines-input" placeholder="请输入线数据，支持以下格式：
@@ -490,7 +490,7 @@ MULTILINESTRING((116.123 39.456,116.124 39.457),(116.125 39.458,116.126 39.459))
             <!-- 多边形数据标签页 - 默认激活 -->
             <div class="tab-content active" id="polygons-tab">
                 <div class="format-indicator" id="polygon-format-indicator">
-                    检测到格式: <strong>WKT</strong>
+                    检测到格式: <strong>坐标串</strong>
                 </div>
                 <div class="input-item">
                     <textarea id="polygon-input" placeholder="请输入多边形数据，支持以下格式：
@@ -500,7 +500,7 @@ MULTILINESTRING((116.123 39.456,116.124 39.457),(116.125 39.458,116.126 39.459))
 
 WKT格式示例:
 POLYGON((116.123 39.456,116.124 39.457,116.125 39.458,116.123 39.456))
-MULTIPOLYGON(((116.123 39.456,116.124 39.457,116.125 39.458,116.123 39.456)))">116.419801,39.909222;116.419734,39.908797;116.419999,39.908748;116.42003,39.908894;116.420425,39.90888;116.420421,39.908869;116.420416,39.90916;116.419801,39.909222</textarea>
+MULTIPOLYGON(((116.123 39.456,116.124 39.457,116.125 39.458,116.123 39.456)))">116.40961,39.917266;116.410369,39.917273;116.410364,39.918117;116.411123,39.918124;116.41111,39.918506;116.410809,39.91872;116.410661,39.918717;116.410598,39.918679;116.410602,39.918776;116.410548,39.918942;116.410499,39.919159;116.409506,39.9191;116.40961,39.917266</textarea>
                 </div>
                 <div class="format-example">
                     提示: 多边形数据支持坐标串(首尾坐标需相同以闭合)和WKT(POLYGON/MULTIPOLYGON)格式
@@ -531,8 +531,6 @@ MULTIPOLYGON(((116.123 39.456,116.124 39.457,116.125 39.458,116.123 39.456)))">1
 
     <!-- 百度地图相关脚本 -->
     <script src="//api.map.baidu.com/api?v=1.0&type=webgl&ak=vzz9Wpy0k1X3D7zFW04sf7xBLxhR6iRx"></script>
-    <script src="//mapv.baidu.com/build/mapv.min.js"></script>
-    <script src="https://code.bdstatic.com/npm/mapvgl@1.0.0-beta.189/dist/mapvgl.min.js"></script>
     
     <!-- 高德地图相关脚本 -->
     <script src="https://cache.amap.com/lbs/static/es5.min.js"></script>
@@ -548,8 +546,8 @@ MULTIPOLYGON(((116.123 39.456,116.124 39.457,116.125 39.458,116.123 39.456)))">1
             // 初始化高德地图
             function initAMap() {
                 amap = new AMap.Map('amap-container', {
-                    zoom: 17,
-                    center: [116.420, 39.909],
+                    zoom: 16,
+                    center: [116.410, 39.918],
                     viewMode: '3D'
                 });
             }
@@ -557,7 +555,7 @@ MULTIPOLYGON(((116.123 39.456,116.124 39.457,116.125 39.458,116.123 39.456)))">1
             // 初始化百度地图
             function initBaiduMap() {
                 baiduMap = new BMapGL.Map("baidu-container");
-                baiduMap.centerAndZoom(new BMapGL.Point(116.420, 39.909), 17);
+                baiduMap.centerAndZoom(new BMapGL.Point(116.410, 39.918), 16);
                 baiduMap.enableScrollWheelZoom(true);
                 baiduMap.setTilt(0);
                 baiduMap.setHeading(0);
@@ -641,6 +639,21 @@ MULTIPOLYGON(((116.123 39.456,116.124 39.457,116.125 39.458,116.123 39.456)))">1
                 return 'unknown';
             }
             
+            // 更新格式指示器
+            function updateFormatIndicator(tab, format) {
+                const indicator = document.getElementById(`${tab}-format-indicator`);
+                if (format === 'wkt') {
+                    indicator.innerHTML = '检测到格式: <strong>WKT</strong>';
+                    indicator.className = 'format-indicator wkt';
+                } else if (format === 'coords') {
+                    indicator.innerHTML = '检测到格式: <strong>坐标串</strong>';
+                    indicator.className = 'format-indicator coords';
+                } else {
+                    indicator.innerHTML = '检测到格式: <strong>未知</strong>';
+                    indicator.className = 'format-indicator';
+                }
+            }
+            
             // 解析坐标串格式的点数据
             function parsePointsFromCoords(input) {
                 const points = [];
@@ -648,6 +661,26 @@ MULTIPOLYGON(((116.123 39.456,116.124 39.457,116.125 39.458,116.123 39.456)))">1
                 
                 pointStrings.forEach(pointStr => {
                     const parts = pointStr.split(',');
+                    if (parts.length >= 2) {
+                        const lng = parseFloat(parts[0]);
+                        const lat = parseFloat(parts[1]);
+                        if (!isNaN(lng) && !isNaN(lat)) {
+                            points.push([lng, lat]);
+                        }
+                    }
+                });
+                
+                return points;
+            }
+            
+            // 解析WKT格式的点数据
+            function parsePointsFromWKT(input) {
+                const points = [];
+                const cleaned = input.replace(/POINT|MULTIPOINT|\(|\)/g, '').trim();
+                const coords = cleaned.split(',');
+                
+                coords.forEach(coord => {
+                    const parts = coord.trim().split(/\s+/);
                     if (parts.length >= 2) {
                         const lng = parseFloat(parts[0]);
                         const lat = parseFloat(parts[1]);
@@ -688,6 +721,36 @@ MULTIPOLYGON(((116.123 39.456,116.124 39.457,116.125 39.458,116.123 39.456)))">1
                 return lines;
             }
             
+            // 解析WKT格式的线数据
+            function parseLinesFromWKT(input) {
+                const lines = [];
+                const cleaned = input.replace(/LINESTRING|MULTILINESTRING/g, '').trim();
+                const lineStrings = cleaned.split(/\),\s*\(/);
+                
+                lineStrings.forEach(lineStr => {
+                    const points = [];
+                    const coordStr = lineStr.replace(/[()]/g, '');
+                    const coords = coordStr.split(',');
+                    
+                    coords.forEach(coord => {
+                        const parts = coord.trim().split(/\s+/);
+                        if (parts.length >= 2) {
+                            const lng = parseFloat(parts[0]);
+                            const lat = parseFloat(parts[1]);
+                            if (!isNaN(lng) && !isNaN(lat)) {
+                                points.push([lng, lat]);
+                            }
+                        }
+                    });
+                    
+                    if (points.length > 0) {
+                        lines.push(points);
+                    }
+                });
+                
+                return lines;
+            }
+            
             // 解析坐标串格式的多边形数据
             function parsePolygonsFromCoords(input) {
                 const polygons = [];
@@ -710,13 +773,57 @@ MULTIPOLYGON(((116.123 39.456,116.124 39.457,116.125 39.458,116.123 39.456)))">1
                     
                     // 确保多边形闭合
                     if (points.length >= 3) {
-                        // 检查首尾点是否相同，如果不同则添加首点使其闭合
                         const firstPoint = points[0];
                         const lastPoint = points[points.length - 1];
                         if (firstPoint[0] !== lastPoint[0] || firstPoint[1] !== lastPoint[1]) {
                             points.push([firstPoint[0], firstPoint[1]]);
                         }
                         polygons.push([points]);
+                    }
+                });
+                
+                return polygons;
+            }
+            
+            // 解析WKT格式的多边形数据
+            function parsePolygonsFromWKT(input) {
+                const polygons = [];
+                const cleaned = input.replace(/POLYGON|MULTIPOLYGON/g, '').trim();
+                const polygonStrings = cleaned.split(/\)\s*,\s*\(/);
+                
+                polygonStrings.forEach(polygonStr => {
+                    const rings = [];
+                    const ringStrings = polygonStr.split(/\),\s*\(/);
+                    
+                    ringStrings.forEach(ringStr => {
+                        const points = [];
+                        const coordStr = ringStr.replace(/[()]/g, '');
+                        const coords = coordStr.split(',');
+                        
+                        coords.forEach(coord => {
+                            const parts = coord.trim().split(/\s+/);
+                            if (parts.length >= 2) {
+                                const lng = parseFloat(parts[0]);
+                                const lat = parseFloat(parts[1]);
+                                if (!isNaN(lng) && !isNaN(lat)) {
+                                    points.push([lng, lat]);
+                                }
+                            }
+                        });
+                        
+                        // 确保多边形闭合
+                        if (points.length >= 3) {
+                            const firstPoint = points[0];
+                            const lastPoint = points[points.length - 1];
+                            if (firstPoint[0] !== lastPoint[0] || firstPoint[1] !== lastPoint[1]) {
+                                points.push([firstPoint[0], firstPoint[1]]);
+                            }
+                            rings.push(points);
+                        }
+                    });
+                    
+                    if (rings.length > 0) {
+                        polygons.push(rings);
                     }
                 });
                 
@@ -783,9 +890,9 @@ MULTIPOLYGON(((116.123 39.456,116.124 39.457,116.125 39.458,116.123 39.456)))">1
                 
                 console.log('显示多边形数据:', polygons);
                 
-                polygons.forEach(polygonPaths => {
+                polygons.forEach(polygonRings => {
                     const polygon = new AMap.Polygon({
-                        path: polygonPaths[0],
+                        path: polygonRings[0],
                         fillColor: '#FF6B6B',
                         fillOpacity: 0.4,
                         strokeColor: '#FF6B6B',
@@ -856,8 +963,8 @@ MULTIPOLYGON(((116.123 39.456,116.124 39.457,116.125 39.458,116.123 39.456)))">1
                 console.log('显示多边形数据:', polygons);
                 
                 const allPoints = [];
-                polygons.forEach(polygonPaths => {
-                    const bPoints = polygonPaths[0].map(point => new BMapGL.Point(point[0], point[1]));
+                polygons.forEach(polygonRings => {
+                    const bPoints = polygonRings[0].map(point => new BMapGL.Point(point[0], point[1]));
                     const polygon = new BMapGL.Polygon(bPoints, {
                         fillColor: '#FF6B6B',
                         fillOpacity: 0.4,
@@ -867,7 +974,7 @@ MULTIPOLYGON(((116.123 39.456,116.124 39.457,116.125 39.458,116.123 39.456)))">1
                     });
                     baiduMap.addOverlay(polygon);
                     baiduLayers.polygons.push(polygon);
-                    allPoints.push(...polygonPaths[0]);
+                    allPoints.push(...polygonRings[0]);
                 });
                 
                 // 调整视图
@@ -902,37 +1009,66 @@ MULTIPOLYGON(((116.123 39.456,116.124 39.457,116.125 39.458,116.123 39.456)))">1
                 }
                 
                 const format = detectFormat(input, activeTab);
+                updateFormatIndicator(activeTab, format);
                 
                 try {
+                    let data = [];
                     if (format === 'coords') {
                         if (activeTab === 'points') {
-                            const points = parsePointsFromCoords(input);
+                            data = parsePointsFromCoords(input);
                             if (currentMap === 'amap') {
-                                showPointsAMap(points);
+                                showPointsAMap(data);
                             } else {
-                                showPointsBaidu(points);
+                                showPointsBaidu(data);
                             }
-                            showStatus(`成功显示 ${points.length} 个点`, true);
+                            showStatus(`成功显示 ${data.length} 个点`, true);
                         } else if (activeTab === 'lines') {
-                            const lines = parseLinesFromCoords(input);
+                            data = parseLinesFromCoords(input);
                             if (currentMap === 'amap') {
-                                showLinesAMap(lines);
+                                showLinesAMap(data);
                             } else {
-                                showLinesBaidu(lines);
+                                showLinesBaidu(data);
                             }
-                            showStatus(`成功显示 ${lines.length} 条线`, true);
+                            showStatus(`成功显示 ${data.length} 条线`, true);
                         } else if (activeTab === 'polygons') {
-                            const polygons = parsePolygonsFromCoords(input);
-                            console.log('解析出的多边形:', polygons);
+                            data = parsePolygonsFromCoords(input);
+                            console.log('解析出的多边形:', data);
                             if (currentMap === 'amap') {
-                                showPolygonsAMap(polygons);
+                                showPolygonsAMap(data);
                             } else {
-                                showPolygonsBaidu(polygons);
+                                showPolygonsBaidu(data);
                             }
-                            showStatus(`成功显示 ${polygons.length} 个多边形`, true);
+                            showStatus(`成功显示 ${data.length} 个多边形`, true);
+                        }
+                    } else if (format === 'wkt') {
+                        if (activeTab === 'points') {
+                            data = parsePointsFromWKT(input);
+                            if (currentMap === 'amap') {
+                                showPointsAMap(data);
+                            } else {
+                                showPointsBaidu(data);
+                            }
+                            showStatus(`成功显示 ${data.length} 个点`, true);
+                        } else if (activeTab === 'lines') {
+                            data = parseLinesFromWKT(input);
+                            if (currentMap === 'amap') {
+                                showLinesAMap(data);
+                            } else {
+                                showLinesBaidu(data);
+                            }
+                            showStatus(`成功显示 ${data.length} 条线`, true);
+                        } else if (activeTab === 'polygons') {
+                            data = parsePolygonsFromWKT(input);
+                            console.log('解析出的多边形:', data);
+                            if (currentMap === 'amap') {
+                                showPolygonsAMap(data);
+                            } else {
+                                showPolygonsBaidu(data);
+                            }
+                            showStatus(`成功显示 ${data.length} 个多边形`, true);
                         }
                     } else {
-                        showStatus('暂不支持WKT格式，请使用坐标串格式', false);
+                        showStatus('无法识别的数据格式，请使用坐标串或WKT格式', false);
                     }
                 } catch (error) {
                     showStatus('解析错误: ' + error.message, false);
@@ -953,29 +1089,54 @@ MULTIPOLYGON(((116.123 39.456,116.124 39.457,116.125 39.458,116.123 39.456)))">1
                     if (!input) return;
                     
                     const format = detectFormat(input, tab);
+                    updateFormatIndicator(tab, format);
                     
                     try {
+                        let data = [];
                         if (format === 'coords') {
                             if (tab === 'points') {
-                                const points = parsePointsFromCoords(input);
+                                data = parsePointsFromCoords(input);
                                 if (currentMap === 'amap') {
-                                    showPointsAMap(points);
+                                    showPointsAMap(data);
                                 } else {
-                                    showPointsBaidu(points);
+                                    showPointsBaidu(data);
                                 }
                             } else if (tab === 'lines') {
-                                const lines = parseLinesFromCoords(input);
+                                data = parseLinesFromCoords(input);
                                 if (currentMap === 'amap') {
-                                    showLinesAMap(lines);
+                                    showLinesAMap(data);
                                 } else {
-                                    showLinesBaidu(lines);
+                                    showLinesBaidu(data);
                                 }
                             } else if (tab === 'polygons') {
-                                const polygons = parsePolygonsFromCoords(input);
+                                data = parsePolygonsFromCoords(input);
                                 if (currentMap === 'amap') {
-                                    showPolygonsAMap(polygons);
+                                    showPolygonsAMap(data);
                                 } else {
-                                    showPolygonsBaidu(polygons);
+                                    showPolygonsBaidu(data);
+                                }
+                            }
+                        } else if (format === 'wkt') {
+                            if (tab === 'points') {
+                                data = parsePointsFromWKT(input);
+                                if (currentMap === 'amap') {
+                                    showPointsAMap(data);
+                                } else {
+                                    showPointsBaidu(data);
+                                }
+                            } else if (tab === 'lines') {
+                                data = parseLinesFromWKT(input);
+                                if (currentMap === 'amap') {
+                                    showLinesAMap(data);
+                                } else {
+                                    showLinesBaidu(data);
+                                }
+                            } else if (tab === 'polygons') {
+                                data = parsePolygonsFromWKT(input);
+                                if (currentMap === 'amap') {
+                                    showPolygonsAMap(data);
+                                } else {
+                                    showPolygonsBaidu(data);
                                 }
                             }
                         }
@@ -1022,10 +1183,25 @@ MULTIPOLYGON(((116.123 39.456,116.124 39.457,116.125 39.458,116.123 39.456)))">1
                 }, 5000);
             }
             
+            // 初始化格式检测
+            function initFormatDetection() {
+                ['points', 'lines', 'polygons'].forEach(tab => {
+                    const inputElement = document.getElementById(`${tab}-input`);
+                    inputElement.addEventListener('input', function() {
+                        const format = detectFormat(this.value, tab);
+                        updateFormatIndicator(tab, format);
+                    });
+                    // 初始检测
+                    const format = detectFormat(inputElement.value, tab);
+                    updateFormatIndicator(tab, format);
+                });
+            }
+            
             // 初始化
             initAMap();
             initBaiduMap();
             initTabs();
+            initFormatDetection();
             
             // 事件监听
             document.getElementById('switch-amap').addEventListener('click', () => switchMap('amap'));
