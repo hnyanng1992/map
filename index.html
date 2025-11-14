@@ -500,7 +500,7 @@ MULTILINESTRING((116.123 39.456,116.124 39.457),(116.125 39.458,116.126 39.459))
 
 WKT格式示例:
 POLYGON((116.123 39.456,116.124 39.457,116.125 39.458,116.123 39.456))
-MULTIPOLYGON(((116.123 39.456,116.124 39.457,116.125 39.458,116.123 39.456)))">116.40961,39.917266;116.410369,39.917273;116.410364,39.918117;116.411123,39.918124;116.41111,39.918506;116.410809,39.91872;116.410661,39.918717;116.410598,39.918679;116.410602,39.918776;116.410548,39.918942;116.410499,39.919159;116.409506,39.9191;116.40961,39.917266</textarea>
+MULTIPOLYGON(((116.123 39.456,116.124 39.457,116.125 39.458,116.123 39.456)))">116.403151,39.911163;116.403910,39.911171;116.403905,39.912015;116.404663,39.912023;116.404650,39.912405;116.404350,39.912618;116.404202,39.912615;116.404139,39.912577;116.404143,39.912674;116.404089,39.912840;116.404040,39.913057;116.403047,39.912997;116.403151,39.911163</textarea>
                 </div>
                 <div class="format-example">
                     提示: 多边形数据支持坐标串(首尾坐标需相同以闭合)和WKT(POLYGON/MULTIPOLYGON)格式
@@ -547,22 +547,25 @@ MULTIPOLYGON(((116.123 39.456,116.124 39.457,116.125 39.458,116.123 39.456)))">1
             function initAMap() {
                 amap = new AMap.Map('amap-container', {
                     zoom: 16,
-                    center: [116.410, 39.918],
+                    center: [116.404, 39.915],
                     viewMode: '3D'
                 });
+                console.log('高德地图初始化完成');
             }
             
             // 初始化百度地图
             function initBaiduMap() {
                 baiduMap = new BMapGL.Map("baidu-container");
-                baiduMap.centerAndZoom(new BMapGL.Point(116.410, 39.918), 16);
+                baiduMap.centerAndZoom(new BMapGL.Point(116.404, 39.915), 16);
                 baiduMap.enableScrollWheelZoom(true);
                 baiduMap.setTilt(0);
                 baiduMap.setHeading(0);
+                console.log('百度地图初始化完成');
             }
             
             // 地图切换功能
             function switchMap(mapType) {
+                console.log('切换地图到:', mapType);
                 currentMap = mapType;
                 
                 // 更新按钮状态
@@ -575,8 +578,9 @@ MULTIPOLYGON(((116.123 39.456,116.124 39.457,116.125 39.458,116.123 39.456)))">1
                 
                 // 重新显示当前数据
                 setTimeout(() => {
+                    console.log('重新显示数据');
                     showAll();
-                }, 100);
+                }, 300);
             }
             
             // 标签切换功能
@@ -588,6 +592,7 @@ MULTIPOLYGON(((116.123 39.456,116.124 39.457,116.125 39.458,116.123 39.456)))">1
                 tabs.forEach(tab => {
                     tab.addEventListener('click', function() {
                         const tabName = this.getAttribute('data-tab');
+                        console.log('切换到标签:', tabName);
                         
                         // 更新标签状态
                         tabs.forEach(t => t.classList.remove('active'));
@@ -725,7 +730,7 @@ MULTIPOLYGON(((116.123 39.456,116.124 39.457,116.125 39.458,116.123 39.456)))">1
             function parseLinesFromWKT(input) {
                 const lines = [];
                 const cleaned = input.replace(/LINESTRING|MULTILINESTRING/g, '').trim();
-                const lineStrings = cleaned.split(/\),\s*\(/);
+                const lineStrings = cleaned.split(/\)\s*,\s*\(/);
                 
                 lineStrings.forEach(lineStr => {
                     const points = [];
@@ -999,6 +1004,7 @@ MULTIPOLYGON(((116.123 39.456,116.124 39.457,116.125 39.458,116.123 39.456)))">1
             
             // 显示当前标签页的数据
             function showCurrent() {
+                console.log('显示当前图形');
                 const activeTab = document.querySelector('.tab.active').getAttribute('data-tab');
                 const inputElement = document.getElementById(`${activeTab}-input`);
                 const input = inputElement.value.trim();
@@ -1078,6 +1084,7 @@ MULTIPOLYGON(((116.123 39.456,116.124 39.457,116.125 39.458,116.123 39.456)))">1
             
             // 显示所有数据
             function showAll() {
+                console.log('显示所有图形');
                 // 先清除所有
                 clearAll();
                 
@@ -1149,6 +1156,7 @@ MULTIPOLYGON(((116.123 39.456,116.124 39.457,116.125 39.458,116.123 39.456)))">1
             }
             
             function clearAll() {
+                console.log('清除所有图形');
                 if (currentMap === 'amap') {
                     amapLayers.points.forEach(point => amap.remove(point));
                     amapLayers.lines.forEach(line => amap.remove(line));
@@ -1197,21 +1205,51 @@ MULTIPOLYGON(((116.123 39.456,116.124 39.457,116.125 39.458,116.123 39.456)))">1
                 });
             }
             
+            // 初始化事件监听
+            function initEventListeners() {
+                console.log('初始化事件监听器');
+                
+                document.getElementById('switch-amap').addEventListener('click', function() {
+                    console.log('点击高德地图按钮');
+                    switchMap('amap');
+                });
+                
+                document.getElementById('switch-baidu').addEventListener('click', function() {
+                    console.log('点击百度地图按钮');
+                    switchMap('baidu');
+                });
+                
+                document.getElementById('show-current-btn').addEventListener('click', function() {
+                    console.log('点击显示当前图形按钮');
+                    showCurrent();
+                });
+                
+                document.getElementById('show-all-btn').addEventListener('click', function() {
+                    console.log('点击显示所有图形按钮');
+                    showAll();
+                });
+                
+                document.getElementById('clear-all-btn').addEventListener('click', function() {
+                    console.log('点击清除所有按钮');
+                    clearAll();
+                });
+                
+                console.log('事件监听器初始化完成');
+            }
+            
             // 初始化
+            console.log('开始初始化应用');
             initAMap();
             initBaiduMap();
             initTabs();
             initFormatDetection();
-            
-            // 事件监听
-            document.getElementById('switch-amap').addEventListener('click', () => switchMap('amap'));
-            document.getElementById('switch-baidu').addEventListener('click', () => switchMap('baidu'));
-            document.getElementById('show-current-btn').addEventListener('click', showCurrent);
-            document.getElementById('show-all-btn').addEventListener('click', showAll);
-            document.getElementById('clear-all-btn').addEventListener('click', clearAll);
+            initEventListeners();
             
             // 设置默认地图
+            console.log('设置默认地图');
             switchMap('amap');
+            
+            console.log('应用初始化完成');
         });
     </script>
 </body>
