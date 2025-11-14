@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>几何数据展示工具 - 双地图切换版</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        html, body {
+            width: 100%;
+            height: 100%;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
+        }
+        
+        #baidu-container, #amap-container {
+            width: 100%;
+            height: 100%;
+            display: none;
+        }
+        
+        #baidu-container.active, #amap-container.active {
+            display: block;
+        }
+        
+        .map-switcher {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            z-index: 1000;
+            display: flex;
+            overflow: hidden;
+        }
+        
+        .map-switch-btn {
+            padding: 10px 16px;
+            border: none;
+            background: white;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .map-switch-btn.active {
+            background: #3388FF;
+            color: white;
+        }
+        
+        .map-switch-btn:first-child {
+            border-radius: 8px 0 0 8px;
+        }
+        
+        .map-switch-btn:last-child {
+            border-radius: 0 8px 8px 0;
+        }
+        
+        .control-panel {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            width: 420px;
+            background: white;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            border-radius: 12px;
+            z-index: 10;
+            max-height: 95vh;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .panel-header {
+            background: linear-gradient(135deg, #3388FF, #4A90E2);
+            color: white;
+            padding: 18px 20px;
+            border-radius: 12px 12px 0 0;
+            margin: 0;
+            position: sticky;
+            top: 0;
+            z-index: 11;
+            flex-shrink: 0;
+        }
+        
+        .panel-header h3 {
+            margin: 0;
+            font-size: 20px;
+            text-align: center;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+        
+        .panel-content {
+            padding: 20px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid #eaeaea;
+            margin-bottom: 0;
+            background: white;
+            z-index: 10;
+            flex-shrink: 0;
+            border-radius: 8px 8px 0 0;
+            overflow: hidden;
+        }
+        
+        .tab {
+            flex: 1;
+            padding: 14px 8px;
+            text-align: center;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+            font-size: 15px;
+            font-weight: 500;
+            color: #666;
+        }
+        
+        .tab.active {
+            border-bottom: 3px solid #3388FF;
+            color: #3388FF;
+            background-color: #f8fbff;
+        }
+        
+        .current-tab-indicator {
+            background: #e7f3ff;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin: 0;
+            font-size: 14px;
+            border-left: 4px solid #3388FF;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .current-tab-indicator::before {
+            content: "📍";
+            font-size: 16px;
+        }
+        
+        .action-buttons {
+            background: white;
+            padding: 0 0 12px 0;
+            margin: 0;
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .main-button-group {
+            display: flex;
+            gap: 10px;
+            margin: 0;
+        }
+        
+        .main-button-group button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+        
+        .btn-primary {
+            background: #3388FF;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #297acc;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(51, 136, 255, 0.3);
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(108, 117, 125, 0.3);
+        }
+        
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #218838;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(40, 167, 69, 0.3);
+        }
+        
+        .btn-warning {
+            background: #ffc107;
+            color: #212529;
+        }
+        
+        .btn-warning:hover {
+            background: #e0a800;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(255, 193, 7, 0.3);
+        }
+        
+        .tab-content {
+            display: none;
+            flex: 1;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .tab-content.active {
+            display: flex;
+        }
+        
+        .format-indicator {
+            padding: 10px 14px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            font-size: 13px;
+            border-left: 4px solid #28a745;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .format-indicator::before {
+            content: "📋";
+        }
+        
+        .format-indicator.wkt {
+            border-left-color: #3388FF;
+        }
+        
+        .format-indicator.coords {
+            border-left-color: #28a745;
+        }
+        
+        .input-item {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            min-height: 0;
+        }
+        
+        .input-item textarea {
+            width: 100%;
+            flex: 1;
+            min-height: 320px;
+            margin: 0;
+            padding: 16px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            resize: vertical;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 14px;
+            box-sizing: border-box;
+            line-height: 1.6;
+            transition: border 0.3s;
+        }
+        
+        .input-item textarea:focus {
+            border-color: #3388FF;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(51, 136, 255, 0.2);
+        }
+        
+        .format-example {
+            font-size: 12px;
+            color: #666;
+            margin-top: 8px;
+            font-style: italic;
+            flex-shrink: 0;
+            padding: 0 4px;
+        }
+        
+        .legend {
+            padding: 14px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            font-size: 12px;
+            border-top: 1px solid #eee;
+            margin-top: 10px;
+        }
+        
+        .legend-title {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #444;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .legend-title::before {
+            content: "🎨";
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin: 6px 0;
+        }
+        
+        .legend-color {
+            width: 20px;
+            height: 4px;
+            margin-right: 8px;
+            border-radius: 2px;
+        }
+        
+        .legend-point {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        
+        .legend-line {
+            background-color: #3388FF;
+        }
+        
+        .legend-polygon {
+            background-color: #FF6B6B;
+        }
+        
+        .legend-point-color {
+            background-color: #28a745;
+        }
+        
+        .status-message {
+            padding: 10px 14px;
+            border-radius: 6px;
+            font-size: 13px;
+            margin-top: 8px;
+            display: none;
+        }
+        
+        .status-success {
+            background: #d4edda;
+            color: #155724;
+            border-left: 4px solid #28a745;
+        }
+        
+        .status-error {
+            background: #f8d7da;
+            color: #721c24;
+            border-left: 4px solid #dc3545;
+        }
+        
+        @media (max-width: 768px) {
+            .control-panel {
+                width: calc(100% - 40px);
+                max-height: 85vh;
+            }
+            
+            .input-item textarea {
+                min-height: 250px;
+            }
+            
+            .panel-content {
+                gap: 12px;
+            }
+            
+            .main-button-group {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 地图容器 -->
+    <div id="baidu-container"></div>
+    <div id="amap-container" class="active"></div>
+    
+    <!-- 地图切换器 -->
+    <div class="map-switcher">
+        <button class="map-switch-btn" id="switch-amap">
+            <span>🗺️</span> 高德地图
+        </button>
+        <button class="map-switch-btn" id="switch-baidu">
+            <span>🌐</span> 百度地图
+        </button>
+    </div>
+    
+    <!-- 控制面板 -->
+    <div class="control-panel">
+        <div class="panel-header">
+            <h3>几何数据展示工具</h3>
+        </div>
+        
+        <div class="panel-content">
+            <!-- 标签导航 - 多边形数据默认激活 -->
+            <div class="tabs">
+                <div class="tab" data-tab="points">点数据</div>
+                <div class="tab" data-tab="lines">线数据</div>
+                <div class="tab active" data-tab="polygons">多边形数据</div>
+            </div>
+            
+            <!-- 当前选中指示器 -->
+            <div class="current-tab-indicator" id="current-tab-indicator">
+                当前选中: <strong>多边形数据</strong>
+            </div>
+            
+            <!-- 操作按钮 -->
+            <div class="action-buttons">
+                <div class="main-button-group">
+                    <button class="btn-success" id="show-current-btn">
+                        <span>🔍</span> 显示当前图形
+                    </button>
+                    <button class="btn-primary" id="show-all-btn">
+                        <span>🗺️</span> 显示所有图形
+                    </button>
+                    <button class="btn-secondary" id="clear-all-btn">
+                        <span>🗑️</span> 清除所有
+                    </button>
+                </div>
+            </div>
+            
+            <!-- 点数据标签页 -->
+            <div class="tab-content" id="points-tab">
+                <div class="format-indicator" id="points-format-indicator">
+                    检测到格式: <strong>WKT</strong>
+                </div>
+                <div class="input-item">
+                    <textarea id="points-input" placeholder="请输入点数据，支持以下格式：
+
+坐标串格式示例:
+116.123,39.456;116.124,39.457
+
+WKT格式示例:
+POINT(116.123 39.456)
+MULTIPOINT((116.123 39.456),(116.124 39.457))">POINT (104.065603 30.641998)</textarea>
+                </div>
+                <div class="format-example">
+                    提示: 点数据支持坐标串(经度,纬度;经度,纬度)和WKT(POINT/MULTIPOINT)格式
+                </div>
+            </div>
+            
+            <!-- 线数据标签页 -->
+            <div class="tab-content" id="lines-tab">
+                <div class="format-indicator" id="lines-format-indicator">
+                    检测到格式: <strong>WKT</strong>
+                </div>
+                <div class="input-item">
+                    <textarea id="lines-input" placeholder="请输入线数据，支持以下格式：
+
+坐标串格式示例:
+116.123,39.456;116.124,39.457|116.125,39.458;116.126,39.459
+
+WKT格式示例:
+LINESTRING(116.123 39.456,116.124 39.457)
+MULTILINESTRING((116.123 39.456,116.124 39.457),(116.125 39.458,116.126 39.459))">MULTILINESTRING ((116.4279376 39.8443999,116.4278987 39.8444812,116.4278609 39.8445569,116.4277498 39.8447601,116.4276442 39.8450061,116.4275502 39.8452521,116.427444 39.8456184,116.4273939 39.8458195,116.4273544 39.8460234,116.4273322 39.8462702,116.4273638 39.8475818,116.4273641 39.8477638,116.4273658 39.8481813,116.4274092 39.8492723,116.4274145 39.850016,116.4274133 39.8505162,116.4272741 39.8511361,116.4272158 39.8513956,116.4269254 39.8527613,116.4265736 39.8540205,116.4265071 39.8542773,116.4263762 39.8548852,116.4262754 39.8553714,116.4261895 39.8557862,116.4259371 39.8570047))</textarea>
+                </div>
+                <div class="format-example">
+                    提示: 线数据支持坐标串(使用|分隔不同线段)和WKT(LINESTRING/MULTILINESTRING)格式
+                </div>
+            </div>
+            
+            <!-- 多边形数据标签页 - 默认激活 -->
+            <div class="tab-content active" id="polygons-tab">
+                <div class="format-indicator" id="polygon-format-indicator">
+                    检测到格式: <strong>WKT</strong>
+                </div>
+                <div class="input-item">
+                    <textarea id="polygon-input" placeholder="请输入多边形数据，支持以下格式：
+
+坐标串格式示例:
+116.123,39.456;116.124,39.457;116.125,39.458;116.123,39.456
+
+WKT格式示例:
+POLYGON((116.123 39.456,116.124 39.457,116.125 39.458,116.123 39.456))
+MULTIPOLYGON(((116.123 39.456,116.124 39.457,116.125 39.458,116.123 39.456)))">POLYGON((116.417694 39.915705, 116.426632 39.915584, 116.426236 39.924278, 116.417476 39.924379, 116.417694 39.915705))
+
+POLYGON((116.397694 39.935705, 116.406632 39.935584, 116.406236 39.944278, 116.397476 39.944379, 116.397694 39.935705))
+
+POLYGON((116.437694 39.895705, 116.446632 39.895584, 116.446236 39.904278, 116.437476 39.904379, 116.437694 39.895705))</textarea>
+                </div>
+                <div class="format-example">
+                    提示: 多边形数据支持坐标串(首尾坐标需相同以闭合)和WKT(POLYGON/MULTIPOLYGON)格式
+                </div>
+            </div>
+            
+            <!-- 状态消息 -->
+            <div class="status-message" id="status-message"></div>
+            
+            <!-- 图例 -->
+            <div class="legend">
+                <div class="legend-title">图例说明</div>
+                <div class="legend-item">
+                    <div class="legend-point legend-point-color"></div>
+                    <span>点数据</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color legend-line"></div>
+                    <span>线数据</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color legend-polygon"></div>
+                    <span>多边形数据</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 百度地图相关脚本 -->
+    <script src="//api.map.baidu.com/api?v=1.0&type=webgl&ak=vzz9Wpy0k1X3D7zFW04sf7xBLxhR6iRx"></script>
+    <script src="//mapv.baidu.com/build/mapv.min.js"></script>
+    <script src="https://code.bdstatic.com/npm/mapvgl@1.0.0-beta.189/dist/mapvgl.min.js"></script>
+    
+    <!-- 高德地图相关脚本 -->
+    <script src="https://cache.amap.com/lbs/static/es5.min.js"></script>
+    <script src="https://webapi.amap.com/maps?v=2.0&key=1cf9fc45df860df45e87af1230f5da74"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            let currentMap = 'amap'; // 默认使用高德地图
+            let amap, baiduMap, amapView, baiduView;
+            let amapLayers = { points: [], lines: [], polygons: [] };
+            let baiduLayers = { points: null, lines: null, polygons: null };
+            
+            // 初始化高德地图
+            function initAMap() {
+                amap = new AMap.Map('amap-container', {
+                    zoom: 14,
+                    center: [116.422, 39.920],
+                    viewMode: '3D'
+                });
+            }
+            
+            // 初始化百度地图
+            function initBaiduMap() {
+                baiduMap = new BMapGL.Map("baidu-container");
+                baiduMap.centerAndZoom(new BMapGL.Point(116.404, 39.915), 12);
+                baiduMap.enableScrollWheelZoom(true);
+                baiduMap.setTilt(0);
+                baiduMap.setHeading(0);
+                
+                // 创建MapVGL视图
+                baiduView = new mapvgl.View({
+                    map: baiduMap
+                });
+            }
+            
+            // 地图切换功能
+            function switchMap(mapType) {
+                currentMap = mapType;
+                
+                // 更新按钮状态
+                document.getElementById('switch-amap').classList.toggle('active', mapType === 'amap');
+                document.getElementById('switch-baidu').classList.toggle('active', mapType === 'baidu');
+                
+                // 切换地图显示
+                document.getElementById('amap-container').classList.toggle('active', mapType === 'amap');
+                document.getElementById('baidu-container').classList.toggle('active', mapType === 'baidu');
+                
+                // 重新显示当前数据
+                setTimeout(() => {
+                    if (mapType === 'amap') {
+                        showAllAMap();
+                    } else {
+                        showAllBaidu();
+                    }
+                }, 100);
+            }
+            
+            // 自动检测格式的函数
+            function detectFormat(input, type) {
+                if (!input || input.trim() === '') return 'unknown';
+                
+                var text = input.trim().toUpperCase();
+                
+                // WKT格式检测
+                if (type === 'points') {
+                    if (text.startsWith('MULTIPOINT') || text.startsWith('POINT')) return 'wkt';
+                } else if (type === 'lines') {
+                    if (text.startsWith('MULTILINESTRING') || text.startsWith('LINESTRING')) return 'wkt';
+                } else if (type === 'polygons') {
+                    if (text.startsWith('MULTIPOLYGON') || text.startsWith('POLYGON')) return 'wkt';
+                }
+                
+                // 坐标串格式检测
+                if (input.includes(';')) {
+                    var parts = input.split(';');
+                    var validCoords = parts.some(part => {
+                        var coords = part.split(',');
+                        if (coords.length === 2) {
+                            var lng = parseFloat(coords[0]), lat = parseFloat(coords[1]);
+                            return !isNaN(lng) && !isNaN(lat);
+                        }
+                        return false;
+                    });
+                    if (validCoords) return 'coords';
+                }
+                
+                return 'unknown';
+            }
+            
+            // 高德地图显示函数
+            function showPointsAMap() {
+                // 高德地图的点显示逻辑
+                amapLayers.points.forEach(point => amap.remove(point));
+                amapLayers.points = [];
+                
+                var input = document.getElementById('points-input').value.trim();
+                if (!input) {
+                    showStatus('点数据输入为空', false);
+                    return;
+                }
+                
+                var format = detectFormat(input, 'points');
+                
+                try {
+                    if (format === 'coords') {
+                        var pointStrings = input.split(';');
+                        var pointCount = 0;
+                        
+                        pointStrings.forEach(pointStr => {
+                            var parts = pointStr.split(',');
+                            if (parts.length >= 2) {
+                                var lng = parseFloat(parts[0]), lat = parseFloat(parts[1]);
+                                if (!isNaN(lng) && !isNaN(lat)) {
+                                    var point = new AMap.Marker({
+                                        position: [lng, lat],
+                                        icon: new AMap.Icon({
+                                            size: new AMap.Size(8, 8),
+                                            image: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iOCIgIGhlaWdodD0iOCIgdmlld0JveD0iMCAwIDggOCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48Y2lyY2xlIGN4PSI0IiBjeT0iNCIgcj0iNCIgZmlsbD0iIzI4YTc0NSIvPjwvc3ZnPg==',
+                                            anchor: 'center'
+                                        })
+                                    });
+                                    amap.add(point);
+                                    amapLayers.points.push(point);
+                                    pointCount++;
+                                }
+                            }
+                        });
+                        
+                        if (pointCount > 0) {
+                            showStatus(`成功添加 ${pointCount} 个点`, true);
+                            amap.setFitView(amapLayers.points);
+                        }
+                    }
+                    // 其他格式处理...
+                } catch (error) {
+                    showStatus('解析错误: ' + error.message, false);
+                }
+            }
+            
+            // 百度地图显示函数
+            function showPointsBaidu() {
+                if (baiduLayers.points) {
+                    baiduView.removeLayer(baiduLayers.points);
+                    baiduLayers.points = null;
+                }
+                
+                var input = document.getElementById('points-input').value.trim();
+                if (!input) {
+                    showStatus('点数据输入为空', false);
+                    return;
+                }
+                
+                var format = detectFormat(input, 'points');
+                var data = [];
+                
+                try {
+                    if (format === 'coords') {
+                        var pointStrings = input.split(';');
+                        var pointCount = 0;
+                        
+                        pointStrings.forEach(pointStr => {
+                            var parts = pointStr.split(',');
+                            if (parts.length >= 2) {
+                                var lng = parseFloat(parts[0]), lat = parseFloat(parts[1]);
+                                if (!isNaN(lng) && !isNaN(lat)) {
+                                    data.push({
+                                        geometry: {
+                                            type: 'Point',
+                                            coordinates: [lng, lat]
+                                        }
+                                    });
+                                    pointCount++;
+                                }
+                            }
+                        });
+                        
+                        if (pointCount > 0) {
+                            baiduLayers.points = new mapvgl.PointLayer({
+                                color: 'rgba(40, 167, 69, 0.8)',
+                                size: 8,
+                                blend: 'lighter'
+                            });
+                            baiduView.addLayer(baiduLayers.points);
+                            baiduLayers.points.setData(data);
+                            showStatus(`成功添加 ${pointCount} 个点`, true);
+                            fitBoundsToDataBaidu(data);
+                        }
+                    }
+                    // 其他格式处理...
+                } catch (error) {
+                    showStatus('解析错误: ' + error.message, false);
+                }
+            }
+            
+            // 百度地图边界适配
+            function fitBoundsToDataBaidu(data) {
+                if (!data || data.length === 0) return;
+                
+                var bounds = new BMapGL.Bounds();
+                var hasValidBounds = false;
+                
+                data.forEach(item => {
+                    if (item.geometry.type === 'Point') {
+                        bounds.extend(new BMapGL.Point(
+                            item.geometry.coordinates[0], 
+                            item.geometry.coordinates[1]
+                        ));
+                        hasValidBounds = true;
+                    }
+                    // 其他几何类型处理...
+                });
+                
+                if (hasValidBounds) {
+                    baiduMap.setViewport([bounds.getSouthWest(), bounds.getNorthEast()]);
+                }
+            }
+            
+            // 显示所有数据（根据当前地图）
+            function showAll() {
+                if (currentMap === 'amap') {
+                    showAllAMap();
+                } else {
+                    showAllBaidu();
+                }
+            }
+            
+            function showAllAMap() {
+                // 高德地图显示所有数据
+                showPointsAMap();
+                // 添加线和多边形的显示逻辑...
+            }
+            
+            function showAllBaidu() {
+                // 百度地图显示所有数据
+                showPointsBaidu();
+                // 添加线和多边形的显示逻辑...
+            }
+            
+            function clearAll() {
+                if (currentMap === 'amap') {
+                    amapLayers.points.forEach(point => amap.remove(point));
+                    amapLayers.points = [];
+                    // 清除其他图层...
+                } else {
+                    Object.keys(baiduLayers).forEach(key => {
+                        if (baiduLayers[key]) {
+                            baiduView.removeLayer(baiduLayers[key]);
+                            baiduLayers[key] = null;
+                        }
+                    });
+                }
+                showStatus('已清除所有图形', true);
+            }
+            
+            function showStatus(message, isSuccess) {
+                var statusElement = document.getElementById('status-message');
+                statusElement.textContent = message;
+                statusElement.className = 'status-message ' + (isSuccess ? 'status-success' : 'status-error');
+                statusElement.style.display = 'block';
+                
+                setTimeout(function() {
+                    statusElement.style.display = 'none';
+                }, 5000);
+            }
+            
+            // 初始化
+            initAMap();
+            initBaiduMap();
+            
+            // 事件监听
+            document.getElementById('switch-amap').addEventListener('click', () => switchMap('amap'));
+            document.getElementById('switch-baidu').addEventListener('click', () => switchMap('baidu'));
+            document.getElementById('show-all-btn').addEventListener('click', showAll);
+            document.getElementById('clear-all-btn').addEventListener('click', clearAll);
+            
+            // 设置默认地图
+            switchMap('amap');
+        });
+    </script>
+</body>
+</html>
