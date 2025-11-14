@@ -460,7 +460,7 @@
 
 WKT格式示例:
 POINT(116.123 39.456)
-MULTIPOINT((116.123 39.456),(116.124 39.457))">POINT (104.065603 30.641998)</textarea>
+MULTIPOINT((116.123 39.456),(116.124 39.457))">116.404,39.915;116.405,39.916;116.406,39.917</textarea>
                 </div>
                 <div class="format-example">
                     提示: 点数据支持坐标串(经度,纬度;经度,纬度)和WKT(POINT/MULTIPOINT)格式
@@ -480,7 +480,7 @@ MULTIPOINT((116.123 39.456),(116.124 39.457))">POINT (104.065603 30.641998)</tex
 
 WKT格式示例:
 LINESTRING(116.123 39.456,116.124 39.457)
-MULTILINESTRING((116.123 39.456,116.124 39.457),(116.125 39.458,116.126 39.459))">MULTILINESTRING ((116.4279376 39.8443999,116.4278987 39.8444812,116.4278609 39.8445569,116.4277498 39.8447601,116.4276442 39.8450061,116.4275502 39.8452521,116.427444 39.8456184,116.4273939 39.8458195,116.4273544 39.8460234,116.4273322 39.8462702,116.4273638 39.8475818,116.4273641 39.8477638,116.4273658 39.8481813,116.4274092 39.8492723,116.4274145 39.850016,116.4274133 39.8505162,116.4272741 39.8511361,116.4272158 39.8513956,116.4269254 39.8527613,116.4265736 39.8540205,116.4265071 39.8542773,116.4263762 39.8548852,116.4262754 39.8553714,116.4261895 39.8557862,116.4259371 39.8570047))</textarea>
+MULTILINESTRING((116.123 39.456,116.124 39.457),(116.125 39.458,116.126 39.459))">116.404,39.915;116.405,39.916;116.406,39.917|116.407,39.918;116.408,39.919</textarea>
                 </div>
                 <div class="format-example">
                     提示: 线数据支持坐标串(使用|分隔不同线段)和WKT(LINESTRING/MULTILINESTRING)格式
@@ -500,11 +500,7 @@ MULTILINESTRING((116.123 39.456,116.124 39.457),(116.125 39.458,116.126 39.459))
 
 WKT格式示例:
 POLYGON((116.123 39.456,116.124 39.457,116.125 39.458,116.123 39.456))
-MULTIPOLYGON(((116.123 39.456,116.124 39.457,116.125 39.458,116.123 39.456)))">POLYGON((116.417694 39.915705, 116.426632 39.915584, 116.426236 39.924278, 116.417476 39.924379, 116.417694 39.915705))
-
-POLYGON((116.397694 39.935705, 116.406632 39.935584, 116.406236 39.944278, 116.397476 39.944379, 116.397694 39.935705))
-
-POLYGON((116.437694 39.895705, 116.446632 39.895584, 116.446236 39.904278, 116.437476 39.904379, 116.437694 39.895705))</textarea>
+MULTIPOLYGON(((116.123 39.456,116.124 39.457,116.125 39.458,116.123 39.456)))">116.404,39.915;116.405,39.920;116.410,39.918;116.404,39.915</textarea>
                 </div>
                 <div class="format-example">
                     提示: 多边形数据支持坐标串(首尾坐标需相同以闭合)和WKT(POLYGON/MULTIPOLYGON)格式
@@ -547,13 +543,13 @@ POLYGON((116.437694 39.895705, 116.446632 39.895584, 116.446236 39.904278, 116.4
             let currentMap = 'amap'; // 默认使用高德地图
             let amap, baiduMap, amapView, baiduView;
             let amapLayers = { points: [], lines: [], polygons: [] };
-            let baiduLayers = { points: null, lines: null, polygons: null };
+            let baiduLayers = { points: [], lines: [], polygons: [] };
             
             // 初始化高德地图
             function initAMap() {
                 amap = new AMap.Map('amap-container', {
                     zoom: 14,
-                    center: [116.422, 39.920],
+                    center: [116.404, 39.915],
                     viewMode: '3D'
                 });
             }
@@ -565,11 +561,6 @@ POLYGON((116.437694 39.895705, 116.446632 39.895584, 116.446236 39.904278, 116.4
                 baiduMap.enableScrollWheelZoom(true);
                 baiduMap.setTilt(0);
                 baiduMap.setHeading(0);
-                
-                // 创建MapVGL视图
-                baiduView = new mapvgl.View({
-                    map: baiduMap
-                });
             }
             
             // 地图切换功能
@@ -586,12 +577,36 @@ POLYGON((116.437694 39.895705, 116.446632 39.895584, 116.446236 39.904278, 116.4
                 
                 // 重新显示当前数据
                 setTimeout(() => {
-                    if (mapType === 'amap') {
-                        showAllAMap();
-                    } else {
-                        showAllBaidu();
-                    }
+                    showAll();
                 }, 100);
+            }
+            
+            // 标签切换功能
+            function initTabs() {
+                const tabs = document.querySelectorAll('.tab');
+                const tabContents = document.querySelectorAll('.tab-content');
+                const indicator = document.getElementById('current-tab-indicator');
+                
+                tabs.forEach(tab => {
+                    tab.addEventListener('click', function() {
+                        const tabName = this.getAttribute('data-tab');
+                        
+                        // 更新标签状态
+                        tabs.forEach(t => t.classList.remove('active'));
+                        this.classList.add('active');
+                        
+                        // 更新内容显示
+                        tabContents.forEach(content => {
+                            content.classList.remove('active');
+                            if (content.id === `${tabName}-tab`) {
+                                content.classList.add('active');
+                            }
+                        });
+                        
+                        // 更新指示器
+                        indicator.innerHTML = `当前选中: <strong>${this.textContent}</strong>`;
+                    });
+                });
             }
             
             // 自动检测格式的函数
@@ -626,169 +641,369 @@ POLYGON((116.437694 39.895705, 116.446632 39.895584, 116.446236 39.904278, 116.4
                 return 'unknown';
             }
             
+            // 解析坐标串格式的点数据
+            function parsePointsFromCoords(input) {
+                const points = [];
+                const pointStrings = input.split(';');
+                
+                pointStrings.forEach(pointStr => {
+                    const parts = pointStr.split(',');
+                    if (parts.length >= 2) {
+                        const lng = parseFloat(parts[0]);
+                        const lat = parseFloat(parts[1]);
+                        if (!isNaN(lng) && !isNaN(lat)) {
+                            points.push([lng, lat]);
+                        }
+                    }
+                });
+                
+                return points;
+            }
+            
+            // 解析坐标串格式的线数据
+            function parseLinesFromCoords(input) {
+                const lines = [];
+                const lineStrings = input.split('|');
+                
+                lineStrings.forEach(lineStr => {
+                    const points = [];
+                    const pointStrings = lineStr.split(';');
+                    
+                    pointStrings.forEach(pointStr => {
+                        const parts = pointStr.split(',');
+                        if (parts.length >= 2) {
+                            const lng = parseFloat(parts[0]);
+                            const lat = parseFloat(parts[1]);
+                            if (!isNaN(lng) && !isNaN(lat)) {
+                                points.push([lng, lat]);
+                            }
+                        }
+                    });
+                    
+                    if (points.length > 0) {
+                        lines.push(points);
+                    }
+                });
+                
+                return lines;
+            }
+            
+            // 解析坐标串格式的多边形数据
+            function parsePolygonsFromCoords(input) {
+                const polygons = [];
+                const polygonStrings = input.split('|');
+                
+                polygonStrings.forEach(polygonStr => {
+                    const points = [];
+                    const pointStrings = polygonStr.split(';');
+                    
+                    pointStrings.forEach(pointStr => {
+                        const parts = pointStr.split(',');
+                        if (parts.length >= 2) {
+                            const lng = parseFloat(parts[0]);
+                            const lat = parseFloat(parts[1]);
+                            if (!isNaN(lng) && !isNaN(lat)) {
+                                points.push([lng, lat]);
+                            }
+                        }
+                    });
+                    
+                    // 确保多边形闭合
+                    if (points.length > 0 && 
+                        (points[0][0] !== points[points.length-1][0] || 
+                         points[0][1] !== points[points.length-1][1])) {
+                        points.push([points[0][0], points[0][1]]);
+                    }
+                    
+                    if (points.length >= 3) {
+                        polygons.push([points]);
+                    }
+                });
+                
+                return polygons;
+            }
+            
             // 高德地图显示函数
-            function showPointsAMap() {
-                // 高德地图的点显示逻辑
+            function showPointsAMap(points) {
+                // 清除现有点
                 amapLayers.points.forEach(point => amap.remove(point));
                 amapLayers.points = [];
                 
-                var input = document.getElementById('points-input').value.trim();
-                if (!input) {
-                    showStatus('点数据输入为空', false);
-                    return;
+                if (points.length === 0) return;
+                
+                points.forEach(point => {
+                    const marker = new AMap.Marker({
+                        position: point,
+                        icon: new AMap.Icon({
+                            size: new AMap.Size(12, 12),
+                            image: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIiIGhlaWdodD0iMTIiIHZpZXdCb3g9IjAgMCAxMiAxMiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48Y2lyY2xlIGN4PSI2IiBjeT0iNiIgcj0iNiIgZmlsbD0iIzI4YTc0NSIvPjwvc3ZnPg==',
+                            anchor: 'center'
+                        })
+                    });
+                    amap.add(marker);
+                    amapLayers.points.push(marker);
+                });
+                
+                // 调整视图
+                amap.setFitView(amapLayers.points);
+            }
+            
+            function showLinesAMap(lines) {
+                // 清除现有线
+                amapLayers.lines.forEach(line => amap.remove(line));
+                amapLayers.lines = [];
+                
+                if (lines.length === 0) return;
+                
+                lines.forEach(linePoints => {
+                    const polyline = new AMap.Polyline({
+                        path: linePoints,
+                        strokeColor: '#3388FF',
+                        strokeWeight: 4,
+                        strokeOpacity: 0.8
+                    });
+                    amap.add(polyline);
+                    amapLayers.lines.push(polyline);
+                });
+                
+                // 调整视图
+                if (amapLayers.lines.length > 0) {
+                    amap.setFitView(amapLayers.lines);
                 }
+            }
+            
+            function showPolygonsAMap(polygons) {
+                // 清除现有多边形
+                amapLayers.polygons.forEach(polygon => amap.remove(polygon));
+                amapLayers.polygons = [];
                 
-                var format = detectFormat(input, 'points');
+                if (polygons.length === 0) return;
                 
-                try {
-                    if (format === 'coords') {
-                        var pointStrings = input.split(';');
-                        var pointCount = 0;
-                        
-                        pointStrings.forEach(pointStr => {
-                            var parts = pointStr.split(',');
-                            if (parts.length >= 2) {
-                                var lng = parseFloat(parts[0]), lat = parseFloat(parts[1]);
-                                if (!isNaN(lng) && !isNaN(lat)) {
-                                    var point = new AMap.Marker({
-                                        position: [lng, lat],
-                                        icon: new AMap.Icon({
-                                            size: new AMap.Size(8, 8),
-                                            image: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iOCIgIGhlaWdodD0iOCIgdmlld0JveD0iMCAwIDggOCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48Y2lyY2xlIGN4PSI0IiBjeT0iNCIgcj0iNCIgZmlsbD0iIzI4YTc0NSIvPjwvc3ZnPg==',
-                                            anchor: 'center'
-                                        })
-                                    });
-                                    amap.add(point);
-                                    amapLayers.points.push(point);
-                                    pointCount++;
-                                }
-                            }
-                        });
-                        
-                        if (pointCount > 0) {
-                            showStatus(`成功添加 ${pointCount} 个点`, true);
-                            amap.setFitView(amapLayers.points);
-                        }
-                    }
-                    // 其他格式处理...
-                } catch (error) {
-                    showStatus('解析错误: ' + error.message, false);
+                polygons.forEach(polygonPaths => {
+                    const polygon = new AMap.Polygon({
+                        path: polygonPaths[0],
+                        fillColor: '#FF6B6B',
+                        fillOpacity: 0.4,
+                        strokeColor: '#FF6B6B',
+                        strokeWeight: 2,
+                        strokeOpacity: 0.8
+                    });
+                    amap.add(polygon);
+                    amapLayers.polygons.push(polygon);
+                });
+                
+                // 调整视图
+                if (amapLayers.polygons.length > 0) {
+                    amap.setFitView(amapLayers.polygons);
                 }
             }
             
             // 百度地图显示函数
-            function showPointsBaidu() {
-                if (baiduLayers.points) {
-                    baiduView.removeLayer(baiduLayers.points);
-                    baiduLayers.points = null;
-                }
+            function showPointsBaidu(points) {
+                // 清除现有点
+                baiduLayers.points.forEach(point => baiduMap.removeOverlay(point));
+                baiduLayers.points = [];
                 
-                var input = document.getElementById('points-input').value.trim();
+                if (points.length === 0) return;
+                
+                points.forEach(point => {
+                    const marker = new BMapGL.Marker(new BMapGL.Point(point[0], point[1]), {
+                        icon: new BMapGL.Icon('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIiIGhlaWdodD0iMTIiIHZpZXdCb3g9IjAgMCAxMiAxMiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48Y2lyY2xlIGN4PSI2IiBjeT0iNiIgcj0iNiIgZmlsbD0iIzI4YTc0NSIvPjwvc3ZnPg==', 
+                        new BMapGL.Size(12, 12))
+                    });
+                    baiduMap.addOverlay(marker);
+                    baiduLayers.points.push(marker);
+                });
+                
+                // 调整视图
+                fitBoundsToDataBaidu(points, 'point');
+            }
+            
+            function showLinesBaidu(lines) {
+                // 清除现有线
+                baiduLayers.lines.forEach(line => baiduMap.removeOverlay(line));
+                baiduLayers.lines = [];
+                
+                if (lines.length === 0) return;
+                
+                const allPoints = [];
+                lines.forEach(linePoints => {
+                    const bPoints = linePoints.map(point => new BMapGL.Point(point[0], point[1]));
+                    const polyline = new BMapGL.Polyline(bPoints, {
+                        strokeColor: '#3388FF',
+                        strokeWeight: 4,
+                        strokeOpacity: 0.8
+                    });
+                    baiduMap.addOverlay(polyline);
+                    baiduLayers.lines.push(polyline);
+                    allPoints.push(...linePoints);
+                });
+                
+                // 调整视图
+                if (allPoints.length > 0) {
+                    fitBoundsToDataBaidu(allPoints, 'point');
+                }
+            }
+            
+            function showPolygonsBaidu(polygons) {
+                // 清除现有多边形
+                baiduLayers.polygons.forEach(polygon => baiduMap.removeOverlay(polygon));
+                baiduLayers.polygons = [];
+                
+                if (polygons.length === 0) return;
+                
+                const allPoints = [];
+                polygons.forEach(polygonPaths => {
+                    const bPoints = polygonPaths[0].map(point => new BMapGL.Point(point[0], point[1]));
+                    const polygon = new BMapGL.Polygon(bPoints, {
+                        fillColor: '#FF6B6B',
+                        fillOpacity: 0.4,
+                        strokeColor: '#FF6B6B',
+                        strokeWeight: 2,
+                        strokeOpacity: 0.8
+                    });
+                    baiduMap.addOverlay(polygon);
+                    baiduLayers.polygons.push(polygon);
+                    allPoints.push(...polygonPaths[0]);
+                });
+                
+                // 调整视图
+                if (allPoints.length > 0) {
+                    fitBoundsToDataBaidu(allPoints, 'point');
+                }
+            }
+            
+            // 百度地图边界适配
+            function fitBoundsToDataBaidu(points, type) {
+                if (!points || points.length === 0) return;
+                
+                const bounds = new BMapGL.Bounds();
+                points.forEach(point => {
+                    if (type === 'point') {
+                        bounds.extend(new BMapGL.Point(point[0], point[1]));
+                    }
+                });
+                
+                baiduMap.setViewport([bounds.getSouthWest(), bounds.getNorthEast()]);
+            }
+            
+            // 显示当前标签页的数据
+            function showCurrent() {
+                const activeTab = document.querySelector('.tab.active').getAttribute('data-tab');
+                const inputElement = document.getElementById(`${activeTab}-input`);
+                const input = inputElement.value.trim();
+                
                 if (!input) {
-                    showStatus('点数据输入为空', false);
+                    showStatus(`${getTabName(activeTab)}输入为空`, false);
                     return;
                 }
                 
-                var format = detectFormat(input, 'points');
-                var data = [];
+                const format = detectFormat(input, activeTab);
                 
                 try {
                     if (format === 'coords') {
-                        var pointStrings = input.split(';');
-                        var pointCount = 0;
-                        
-                        pointStrings.forEach(pointStr => {
-                            var parts = pointStr.split(',');
-                            if (parts.length >= 2) {
-                                var lng = parseFloat(parts[0]), lat = parseFloat(parts[1]);
-                                if (!isNaN(lng) && !isNaN(lat)) {
-                                    data.push({
-                                        geometry: {
-                                            type: 'Point',
-                                            coordinates: [lng, lat]
-                                        }
-                                    });
-                                    pointCount++;
-                                }
+                        if (activeTab === 'points') {
+                            const points = parsePointsFromCoords(input);
+                            if (currentMap === 'amap') {
+                                showPointsAMap(points);
+                            } else {
+                                showPointsBaidu(points);
                             }
-                        });
-                        
-                        if (pointCount > 0) {
-                            baiduLayers.points = new mapvgl.PointLayer({
-                                color: 'rgba(40, 167, 69, 0.8)',
-                                size: 8,
-                                blend: 'lighter'
-                            });
-                            baiduView.addLayer(baiduLayers.points);
-                            baiduLayers.points.setData(data);
-                            showStatus(`成功添加 ${pointCount} 个点`, true);
-                            fitBoundsToDataBaidu(data);
+                            showStatus(`成功显示 ${points.length} 个点`, true);
+                        } else if (activeTab === 'lines') {
+                            const lines = parseLinesFromCoords(input);
+                            if (currentMap === 'amap') {
+                                showLinesAMap(lines);
+                            } else {
+                                showLinesBaidu(lines);
+                            }
+                            showStatus(`成功显示 ${lines.length} 条线`, true);
+                        } else if (activeTab === 'polygons') {
+                            const polygons = parsePolygonsFromCoords(input);
+                            if (currentMap === 'amap') {
+                                showPolygonsAMap(polygons);
+                            } else {
+                                showPolygonsBaidu(polygons);
+                            }
+                            showStatus(`成功显示 ${polygons.length} 个多边形`, true);
                         }
+                    } else {
+                        showStatus('暂不支持WKT格式，请使用坐标串格式', false);
                     }
-                    // 其他格式处理...
                 } catch (error) {
                     showStatus('解析错误: ' + error.message, false);
                 }
             }
             
-            // 百度地图边界适配
-            function fitBoundsToDataBaidu(data) {
-                if (!data || data.length === 0) return;
+            // 显示所有数据
+            function showAll() {
+                // 先清除所有
+                clearAll();
                 
-                var bounds = new BMapGL.Bounds();
-                var hasValidBounds = false;
-                
-                data.forEach(item => {
-                    if (item.geometry.type === 'Point') {
-                        bounds.extend(new BMapGL.Point(
-                            item.geometry.coordinates[0], 
-                            item.geometry.coordinates[1]
-                        ));
-                        hasValidBounds = true;
+                // 显示所有标签页的数据
+                ['points', 'lines', 'polygons'].forEach(tab => {
+                    const inputElement = document.getElementById(`${tab}-input`);
+                    const input = inputElement.value.trim();
+                    
+                    if (!input) return;
+                    
+                    const format = detectFormat(input, tab);
+                    
+                    try {
+                        if (format === 'coords') {
+                            if (tab === 'points') {
+                                const points = parsePointsFromCoords(input);
+                                if (currentMap === 'amap') {
+                                    showPointsAMap(points);
+                                } else {
+                                    showPointsBaidu(points);
+                                }
+                            } else if (tab === 'lines') {
+                                const lines = parseLinesFromCoords(input);
+                                if (currentMap === 'amap') {
+                                    showLinesAMap(lines);
+                                } else {
+                                    showLinesBaidu(lines);
+                                }
+                            } else if (tab === 'polygons') {
+                                const polygons = parsePolygonsFromCoords(input);
+                                if (currentMap === 'amap') {
+                                    showPolygonsAMap(polygons);
+                                } else {
+                                    showPolygonsBaidu(polygons);
+                                }
+                            }
+                        }
+                    } catch (error) {
+                        console.error(`解析${tab}数据错误:`, error);
                     }
-                    // 其他几何类型处理...
                 });
                 
-                if (hasValidBounds) {
-                    baiduMap.setViewport([bounds.getSouthWest(), bounds.getNorthEast()]);
-                }
-            }
-            
-            // 显示所有数据（根据当前地图）
-            function showAll() {
-                if (currentMap === 'amap') {
-                    showAllAMap();
-                } else {
-                    showAllBaidu();
-                }
-            }
-            
-            function showAllAMap() {
-                // 高德地图显示所有数据
-                showPointsAMap();
-                // 添加线和多边形的显示逻辑...
-            }
-            
-            function showAllBaidu() {
-                // 百度地图显示所有数据
-                showPointsBaidu();
-                // 添加线和多边形的显示逻辑...
+                showStatus('已显示所有图形数据', true);
             }
             
             function clearAll() {
                 if (currentMap === 'amap') {
                     amapLayers.points.forEach(point => amap.remove(point));
-                    amapLayers.points = [];
-                    // 清除其他图层...
+                    amapLayers.lines.forEach(line => amap.remove(line));
+                    amapLayers.polygons.forEach(polygon => amap.remove(polygon));
+                    amapLayers = { points: [], lines: [], polygons: [] };
                 } else {
-                    Object.keys(baiduLayers).forEach(key => {
-                        if (baiduLayers[key]) {
-                            baiduView.removeLayer(baiduLayers[key]);
-                            baiduLayers[key] = null;
-                        }
-                    });
+                    baiduLayers.points.forEach(point => baiduMap.removeOverlay(point));
+                    baiduLayers.lines.forEach(line => baiduMap.removeOverlay(line));
+                    baiduLayers.polygons.forEach(polygon => baiduMap.removeOverlay(polygon));
+                    baiduLayers = { points: [], lines: [], polygons: [] };
                 }
                 showStatus('已清除所有图形', true);
+            }
+            
+            function getTabName(tab) {
+                const names = {
+                    'points': '点数据',
+                    'lines': '线数据', 
+                    'polygons': '多边形数据'
+                };
+                return names[tab] || '数据';
             }
             
             function showStatus(message, isSuccess) {
@@ -805,10 +1020,12 @@ POLYGON((116.437694 39.895705, 116.446632 39.895584, 116.446236 39.904278, 116.4
             // 初始化
             initAMap();
             initBaiduMap();
+            initTabs();
             
             // 事件监听
             document.getElementById('switch-amap').addEventListener('click', () => switchMap('amap'));
             document.getElementById('switch-baidu').addEventListener('click', () => switchMap('baidu'));
+            document.getElementById('show-current-btn').addEventListener('click', showCurrent);
             document.getElementById('show-all-btn').addEventListener('click', showAll);
             document.getElementById('clear-all-btn').addEventListener('click', clearAll);
             
