@@ -3,69 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>几何数据展示工具 - 双地图切换版</title>
+    <title>几何数据展示工具 - 百度地图版</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-        
         html, body {
             width: 100%;
             height: 100%;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             overflow: hidden;
         }
-        
-        #baidu-container, #amap-container {
+        #baidu-container {
             width: 100%;
             height: 100%;
-            display: none;
         }
-        
-        #baidu-container.active, #amap-container.active {
-            display: block;
-        }
-        
-        .map-switcher {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-            z-index: 1000;
-            display: flex;
-            overflow: hidden;
-        }
-        
-        .map-switch-btn {
-            padding: 10px 16px;
-            border: none;
-            background: white;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 14px;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-        
-        .map-switch-btn.active {
-            background: #3388FF;
-            color: white;
-        }
-        
-        .map-switch-btn:first-child {
-            border-radius: 8px 0 0 8px;
-        }
-        
-        .map-switch-btn:last-child {
-            border-radius: 0 8px 8px 0;
-        }
-        
         .control-panel {
             position: absolute;
             top: 20px;
@@ -80,7 +34,6 @@
             display: flex;
             flex-direction: column;
         }
-        
         .panel-header {
             background: linear-gradient(135deg, #3388FF, #4A90E2);
             color: white;
@@ -92,7 +45,6 @@
             z-index: 11;
             flex-shrink: 0;
         }
-        
         .panel-header h3 {
             margin: 0;
             font-size: 20px;
@@ -100,7 +52,6 @@
             font-weight: 600;
             letter-spacing: 0.5px;
         }
-        
         .panel-content {
             padding: 20px;
             flex: 1;
@@ -108,7 +59,6 @@
             flex-direction: column;
             gap: 16px;
         }
-        
         .tabs {
             display: flex;
             border-bottom: 1px solid #eaeaea;
@@ -119,7 +69,6 @@
             border-radius: 8px 8px 0 0;
             overflow: hidden;
         }
-        
         .tab {
             flex: 1;
             padding: 14px 8px;
@@ -131,13 +80,11 @@
             font-weight: 500;
             color: #666;
         }
-        
         .tab.active {
             border-bottom: 3px solid #3388FF;
             color: #3388FF;
             background-color: #f8fbff;
         }
-        
         .current-tab-indicator {
             background: #e7f3ff;
             padding: 12px 16px;
@@ -150,12 +97,10 @@
             align-items: center;
             gap: 8px;
         }
-        
         .current-tab-indicator::before {
             content: "📍";
             font-size: 16px;
         }
-        
         .action-buttons {
             background: white;
             padding: 0 0 12px 0;
@@ -165,13 +110,11 @@
             flex-direction: column;
             gap: 12px;
         }
-        
         .main-button-group {
             display: flex;
             gap: 10px;
             margin: 0;
         }
-        
         .main-button-group button {
             flex: 1;
             padding: 12px;
@@ -186,62 +129,51 @@
             justify-content: center;
             gap: 6px;
         }
-        
         .btn-primary {
             background: #3388FF;
             color: white;
         }
-        
         .btn-primary:hover {
             background: #297acc;
             transform: translateY(-2px);
             box-shadow: 0 4px 8px rgba(51, 136, 255, 0.3);
         }
-        
         .btn-secondary {
             background: #6c757d;
             color: white;
         }
-        
         .btn-secondary:hover {
             background: #5a6268;
             transform: translateY(-2px);
             box-shadow: 0 4px 8px rgba(108, 117, 125, 0.3);
         }
-        
         .btn-success {
             background: #28a745;
             color: white;
         }
-        
         .btn-success:hover {
             background: #218838;
             transform: translateY(-2px);
             box-shadow: 0 4px 8px rgba(40, 167, 69, 0.3);
         }
-        
         .btn-warning {
             background: #ffc107;
             color: #212529;
         }
-        
         .btn-warning:hover {
             background: #e0a800;
             transform: translateY(-2px);
             box-shadow: 0 4px 8px rgba(255, 193, 7, 0.3);
         }
-        
         .tab-content {
             display: none;
             flex: 1;
             flex-direction: column;
             gap: 12px;
         }
-        
         .tab-content.active {
             display: flex;
         }
-        
         .format-indicator {
             padding: 10px 14px;
             background: #f8f9fa;
@@ -253,26 +185,21 @@
             align-items: center;
             gap: 8px;
         }
-        
         .format-indicator::before {
             content: "📋";
         }
-        
         .format-indicator.wkt {
             border-left-color: #3388FF;
         }
-        
         .format-indicator.coords {
             border-left-color: #28a745;
         }
-        
         .input-item {
             display: flex;
             flex-direction: column;
             flex: 1;
             min-height: 0;
         }
-        
         .input-item textarea {
             width: 100%;
             flex: 1;
@@ -288,13 +215,11 @@
             line-height: 1.6;
             transition: border 0.3s;
         }
-        
         .input-item textarea:focus {
             border-color: #3388FF;
             outline: none;
             box-shadow: 0 0 0 2px rgba(51, 136, 255, 0.2);
         }
-        
         .format-example {
             font-size: 12px;
             color: #666;
@@ -303,7 +228,6 @@
             flex-shrink: 0;
             padding: 0 4px;
         }
-        
         .legend {
             padding: 14px;
             background: #f8f9fa;
@@ -312,7 +236,6 @@
             border-top: 1px solid #eee;
             margin-top: 10px;
         }
-        
         .legend-title {
             font-weight: 600;
             margin-bottom: 8px;
@@ -321,43 +244,35 @@
             align-items: center;
             gap: 6px;
         }
-        
         .legend-title::before {
             content: "🎨";
         }
-        
         .legend-item {
             display: flex;
             align-items: center;
             margin: 6px 0;
         }
-        
         .legend-color {
             width: 20px;
             height: 4px;
             margin-right: 8px;
             border-radius: 2px;
         }
-        
         .legend-point {
             width: 12px;
             height: 12px;
             border-radius: 50%;
             margin-right: 8px;
         }
-        
         .legend-line {
             background-color: #3388FF;
         }
-        
         .legend-polygon {
             background-color: #FF6B6B;
         }
-        
         .legend-point-color {
             background-color: #28a745;
         }
-        
         .status-message {
             padding: 10px 14px;
             border-radius: 6px;
@@ -365,33 +280,27 @@
             margin-top: 8px;
             display: none;
         }
-        
         .status-success {
             background: #d4edda;
             color: #155724;
             border-left: 4px solid #28a745;
         }
-        
         .status-error {
             background: #f8d7da;
             color: #721c24;
             border-left: 4px solid #dc3545;
         }
-        
         @media (max-width: 768px) {
             .control-panel {
                 width: calc(100% - 40px);
                 max-height: 85vh;
             }
-            
             .input-item textarea {
                 min-height: 250px;
             }
-            
             .panel-content {
                 gap: 12px;
             }
-            
             .main-button-group {
                 flex-direction: column;
             }
@@ -399,26 +308,14 @@
     </style>
 </head>
 <body>
-    <!-- 地图容器 -->
+    <!-- 百度地图容器 -->
     <div id="baidu-container"></div>
-    <div id="amap-container" class="active"></div>
-    
-    <!-- 地图切换器 -->
-    <div class="map-switcher">
-        <button class="map-switch-btn" id="switch-amap">
-            <span>🗺️</span> 高德地图
-        </button>
-        <button class="map-switch-btn" id="switch-baidu">
-            <span>🌐</span> 百度地图
-        </button>
-    </div>
-    
+
     <!-- 控制面板 -->
     <div class="control-panel">
         <div class="panel-header">
-            <h3>几何数据展示工具</h3>
+            <h3>几何数据展示工具（百度地图）</h3>
         </div>
-        
         <div class="panel-content">
             <!-- 标签导航 - 多边形数据默认激活 -->
             <div class="tabs">
@@ -426,12 +323,10 @@
                 <div class="tab" data-tab="lines">线数据</div>
                 <div class="tab active" data-tab="polygons">多边形数据</div>
             </div>
-            
             <!-- 当前选中指示器 -->
             <div class="current-tab-indicator" id="current-tab-indicator">
                 当前选中: <strong>多边形数据</strong>
             </div>
-            
             <!-- 操作按钮 -->
             <div class="action-buttons">
                 <div class="main-button-group">
@@ -446,7 +341,6 @@
                     </button>
                 </div>
             </div>
-            
             <!-- 点数据标签页 -->
             <div class="tab-content" id="points-tab">
                 <div class="format-indicator" id="points-format-indicator">
@@ -454,10 +348,8 @@
                 </div>
                 <div class="input-item">
                     <textarea id="points-input" placeholder="请输入点数据，支持以下格式：
-
 坐标串格式示例:
 116.123,39.456;116.124,39.457
-
 WKT格式示例:
 POINT(116.123 39.456)
 MULTIPOINT((116.123 39.456),(116.124 39.457))">116.404,39.915;116.405,39.916;116.406,39.917</textarea>
@@ -466,7 +358,6 @@ MULTIPOINT((116.123 39.456),(116.124 39.457))">116.404,39.915;116.405,39.916;116
                     提示: 点数据支持坐标串(经度,纬度;经度,纬度)和WKT(POINT/MULTIPOINT)格式
                 </div>
             </div>
-            
             <!-- 线数据标签页 -->
             <div class="tab-content" id="lines-tab">
                 <div class="format-indicator" id="lines-format-indicator">
@@ -474,10 +365,8 @@ MULTIPOINT((116.123 39.456),(116.124 39.457))">116.404,39.915;116.405,39.916;116
                 </div>
                 <div class="input-item">
                     <textarea id="lines-input" placeholder="请输入线数据，支持以下格式：
-
 坐标串格式示例:
 116.123,39.456;116.124,39.457|116.125,39.458;116.126,39.459
-
 WKT格式示例:
 LINESTRING(116.123 39.456,116.124 39.457)
 MULTILINESTRING((116.123 39.456,116.124 39.457),(116.125 39.458,116.126 39.459))">116.404,39.915;116.405,39.916;116.406,39.917|116.407,39.918;116.408,39.919</textarea>
@@ -486,7 +375,6 @@ MULTILINESTRING((116.123 39.456,116.124 39.457),(116.125 39.458,116.126 39.459))
                     提示: 线数据支持坐标串(使用|分隔不同线段)和WKT(LINESTRING/MULTILINESTRING)格式
                 </div>
             </div>
-            
             <!-- 多边形数据标签页 - 默认激活 -->
             <div class="tab-content active" id="polygons-tab">
                 <div class="format-indicator" id="polygon-format-indicator">
@@ -494,10 +382,8 @@ MULTILINESTRING((116.123 39.456,116.124 39.457),(116.125 39.458,116.126 39.459))
                 </div>
                 <div class="input-item">
                     <textarea id="polygon-input" placeholder="请输入多边形数据，支持以下格式：
-
 坐标串格式示例:
 116.123,39.456;116.124,39.457;116.125,39.458;116.123,39.456
-
 WKT格式示例:
 POLYGON((116.123 39.456,116.124 39.457,116.125 39.458,116.123 39.456))
 MULTIPOLYGON(((116.123 39.456,116.124 39.457,116.125 39.458,116.123 39.456)))">116.403151,39.911163;116.403910,39.911171;116.403905,39.912015;116.404663,39.912023;116.404650,39.912405;116.404350,39.912618;116.404202,39.912615;116.404139,39.912577;116.404143,39.912674;116.404089,39.912840;116.404040,39.913057;116.403047,39.912997;116.403151,39.911163</textarea>
@@ -506,10 +392,8 @@ MULTIPOLYGON(((116.123 39.456,116.124 39.457,116.125 39.458,116.123 39.456)))">1
                     提示: 多边形数据支持坐标串(首尾坐标需相同以闭合)和WKT(POLYGON/MULTIPOLYGON)格式
                 </div>
             </div>
-            
             <!-- 状态消息 -->
             <div class="status-message" id="status-message"></div>
-            
             <!-- 图例 -->
             <div class="legend">
                 <div class="legend-title">图例说明</div>
@@ -529,30 +413,14 @@ MULTIPOLYGON(((116.123 39.456,116.124 39.457,116.125 39.458,116.123 39.456)))">1
         </div>
     </div>
 
-    <!-- 百度地图相关脚本 -->
+    <!-- 百度地图脚本 -->
     <script src="//api.map.baidu.com/api?v=1.0&type=webgl&ak=vzz9Wpy0k1X3D7zFW04sf7xBLxhR6iRx"></script>
-    
-    <!-- 高德地图相关脚本 -->
-    <script src="https://cache.amap.com/lbs/static/es5.min.js"></script>
-    <script src="https://webapi.amap.com/maps?v=2.0&key=1cf9fc45df860df45e87af1230f5da74"></script>
-    
+
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            let currentMap = 'amap'; // 默认使用高德地图
-            let amap, baiduMap;
-            let amapLayers = { points: [], lines: [], polygons: [] };
-            let baiduLayers = { points: [], lines: [], polygons: [] };
-            
-            // 初始化高德地图
-            function initAMap() {
-                amap = new AMap.Map('amap-container', {
-                    zoom: 16,
-                    center: [116.404, 39.915],
-                    viewMode: '3D'
-                });
-                console.log('高德地图初始化完成');
-            }
-            
+        document.addEventListener('DOMContentLoaded', function () {
+            let baiduMap;
+            let layers = { points: [], lines: [], polygons: [] };
+
             // 初始化百度地图
             function initBaiduMap() {
                 baiduMap = new BMapGL.Map("baidu-container");
@@ -562,42 +430,19 @@ MULTIPOLYGON(((116.123 39.456,116.124 39.457,116.125 39.458,116.123 39.456)))">1
                 baiduMap.setHeading(0);
                 console.log('百度地图初始化完成');
             }
-            
-            // 地图切换功能
-            function switchMap(mapType) {
-                console.log('切换地图到:', mapType);
-                currentMap = mapType;
-                
-                // 更新按钮状态
-                document.getElementById('switch-amap').classList.toggle('active', mapType === 'amap');
-                document.getElementById('switch-baidu').classList.toggle('active', mapType === 'baidu');
-                
-                // 切换地图显示
-                document.getElementById('amap-container').classList.toggle('active', mapType === 'amap');
-                document.getElementById('baidu-container').classList.toggle('active', mapType === 'baidu');
-                
-                // 重新显示当前数据
-                setTimeout(() => {
-                    console.log('重新显示数据');
-                    showAll();
-                }, 300);
-            }
-            
+
             // 标签切换功能
             function initTabs() {
                 const tabs = document.querySelectorAll('.tab');
                 const tabContents = document.querySelectorAll('.tab-content');
                 const indicator = document.getElementById('current-tab-indicator');
-                
                 tabs.forEach(tab => {
-                    tab.addEventListener('click', function() {
+                    tab.addEventListener('click', function () {
                         const tabName = this.getAttribute('data-tab');
                         console.log('切换到标签:', tabName);
-                        
                         // 更新标签状态
                         tabs.forEach(t => t.classList.remove('active'));
                         this.classList.add('active');
-                        
                         // 更新内容显示
                         tabContents.forEach(content => {
                             content.classList.remove('active');
@@ -605,19 +450,16 @@ MULTIPOLYGON(((116.123 39.456,116.124 39.457,116.125 39.458,116.123 39.456)))">1
                                 content.classList.add('active');
                             }
                         });
-                        
                         // 更新指示器
                         indicator.innerHTML = `当前选中: <strong>${this.textContent}</strong>`;
                     });
                 });
             }
-            
+
             // 自动检测格式的函数
             function detectFormat(input, type) {
                 if (!input || input.trim() === '') return 'unknown';
-                
                 var text = input.trim().toUpperCase();
-                
                 // WKT格式检测
                 if (type === 'points') {
                     if (text.startsWith('MULTIPOINT') || text.startsWith('POINT')) return 'wkt';
@@ -626,7 +468,6 @@ MULTIPOLYGON(((116.123 39.456,116.124 39.457,116.125 39.458,116.123 39.456)))">1
                 } else if (type === 'polygons') {
                     if (text.startsWith('MULTIPOLYGON') || text.startsWith('POLYGON')) return 'wkt';
                 }
-                
                 // 坐标串格式检测
                 if (input.includes(';')) {
                     var parts = input.split(';');
@@ -640,10 +481,9 @@ MULTIPOLYGON(((116.123 39.456,116.124 39.457,116.125 39.458,116.123 39.456)))">1
                     });
                     if (validCoords) return 'coords';
                 }
-                
                 return 'unknown';
             }
-            
+
             // 更新格式指示器
             function updateFormatIndicator(tab, format) {
                 const indicator = document.getElementById(`${tab}-format-indicator`);
@@ -658,12 +498,11 @@ MULTIPOLYGON(((116.123 39.456,116.124 39.457,116.125 39.458,116.123 39.456)))">1
                     indicator.className = 'format-indicator';
                 }
             }
-            
-            // 解析坐标串格式的点数据
+
+            // 解析函数 —— 与原版一致
             function parsePointsFromCoords(input) {
                 const points = [];
                 const pointStrings = input.split(';');
-                
                 pointStrings.forEach(pointStr => {
                     const parts = pointStr.split(',');
                     if (parts.length >= 2) {
@@ -674,16 +513,13 @@ MULTIPOLYGON(((116.123 39.456,116.124 39.457,116.125 39.458,116.123 39.456)))">1
                         }
                     }
                 });
-                
                 return points;
             }
-            
-            // 解析WKT格式的点数据
+
             function parsePointsFromWKT(input) {
                 const points = [];
                 const cleaned = input.replace(/POINT|MULTIPOINT|\(|\)/g, '').trim();
                 const coords = cleaned.split(',');
-                
                 coords.forEach(coord => {
                     const parts = coord.trim().split(/\s+/);
                     if (parts.length >= 2) {
@@ -694,19 +530,15 @@ MULTIPOLYGON(((116.123 39.456,116.124 39.457,116.125 39.458,116.123 39.456)))">1
                         }
                     }
                 });
-                
                 return points;
             }
-            
-            // 解析坐标串格式的线数据
+
             function parseLinesFromCoords(input) {
                 const lines = [];
                 const lineStrings = input.split('|');
-                
                 lineStrings.forEach(lineStr => {
                     const points = [];
                     const pointStrings = lineStr.split(';');
-                    
                     pointStrings.forEach(pointStr => {
                         const parts = pointStr.split(',');
                         if (parts.length >= 2) {
@@ -717,26 +549,21 @@ MULTIPOLYGON(((116.123 39.456,116.124 39.457,116.125 39.458,116.123 39.456)))">1
                             }
                         }
                     });
-                    
                     if (points.length > 0) {
                         lines.push(points);
                     }
                 });
-                
                 return lines;
             }
-            
-            // 解析WKT格式的线数据
+
             function parseLinesFromWKT(input) {
                 const lines = [];
                 const cleaned = input.replace(/LINESTRING|MULTILINESTRING/g, '').trim();
                 const lineStrings = cleaned.split(/\)\s*,\s*\(/);
-                
                 lineStrings.forEach(lineStr => {
                     const points = [];
                     const coordStr = lineStr.replace(/[()]/g, '');
                     const coords = coordStr.split(',');
-                    
                     coords.forEach(coord => {
                         const parts = coord.trim().split(/\s+/);
                         if (parts.length >= 2) {
@@ -747,24 +574,19 @@ MULTIPOLYGON(((116.123 39.456,116.124 39.457,116.125 39.458,116.123 39.456)))">1
                             }
                         }
                     });
-                    
                     if (points.length > 0) {
                         lines.push(points);
                     }
                 });
-                
                 return lines;
             }
-            
-            // 解析坐标串格式的多边形数据
+
             function parsePolygonsFromCoords(input) {
                 const polygons = [];
                 const polygonStrings = input.split('|');
-                
                 polygonStrings.forEach(polygonStr => {
                     const points = [];
                     const pointStrings = polygonStr.split(';');
-                    
                     pointStrings.forEach(pointStr => {
                         const parts = pointStr.split(',');
                         if (parts.length >= 2) {
@@ -775,8 +597,6 @@ MULTIPOLYGON(((116.123 39.456,116.124 39.457,116.125 39.458,116.123 39.456)))">1
                             }
                         }
                     });
-                    
-                    // 确保多边形闭合
                     if (points.length >= 3) {
                         const firstPoint = points[0];
                         const lastPoint = points[points.length - 1];
@@ -786,25 +606,20 @@ MULTIPOLYGON(((116.123 39.456,116.124 39.457,116.125 39.458,116.123 39.456)))">1
                         polygons.push([points]);
                     }
                 });
-                
                 return polygons;
             }
-            
-            // 解析WKT格式的多边形数据
+
             function parsePolygonsFromWKT(input) {
                 const polygons = [];
                 const cleaned = input.replace(/POLYGON|MULTIPOLYGON/g, '').trim();
                 const polygonStrings = cleaned.split(/\)\s*,\s*\(/);
-                
                 polygonStrings.forEach(polygonStr => {
                     const rings = [];
                     const ringStrings = polygonStr.split(/\),\s*\(/);
-                    
                     ringStrings.forEach(ringStr => {
                         const points = [];
                         const coordStr = ringStr.replace(/[()]/g, '');
                         const coords = coordStr.split(',');
-                        
                         coords.forEach(coord => {
                             const parts = coord.trim().split(/\s+/);
                             if (parts.length >= 2) {
@@ -815,8 +630,6 @@ MULTIPOLYGON(((116.123 39.456,116.124 39.457,116.125 39.458,116.123 39.456)))">1
                                 }
                             }
                         });
-                        
-                        // 确保多边形闭合
                         if (points.length >= 3) {
                             const firstPoint = points[0];
                             const lastPoint = points[points.length - 1];
@@ -826,150 +639,52 @@ MULTIPOLYGON(((116.123 39.456,116.124 39.457,116.125 39.458,116.123 39.456)))">1
                             rings.push(points);
                         }
                     });
-                    
                     if (rings.length > 0) {
                         polygons.push(rings);
                     }
                 });
-                
                 return polygons;
             }
-            
-            // 高德地图显示函数
-            function showPointsAMap(points) {
-                // 清除现有点
-                amapLayers.points.forEach(point => amap.remove(point));
-                amapLayers.points = [];
-                
-                if (points.length === 0) return;
-                
-                points.forEach(point => {
-                    const marker = new AMap.Marker({
-                        position: point,
-                        icon: new AMap.Icon({
-                            size: new AMap.Size(12, 12),
-                            image: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIiIGhlaWdodD0iMTIiIHZpZXdCb3g9IjAgMCAxMiAxMiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48Y2lyY2xlIGN4PSI2IiBjeT0iNiIgcj0iNiIgZmlsbD0iIzI4YTc0NSIvPjwvc3ZnPg==',
-                            anchor: 'center'
-                        })
-                    });
-                    amap.add(marker);
-                    amapLayers.points.push(marker);
-                });
-                
-                // 调整视图
-                if (amapLayers.points.length > 0) {
-                    amap.setFitView(amapLayers.points);
-                }
-            }
-            
-            function showLinesAMap(lines) {
-                // 清除现有线
-                amapLayers.lines.forEach(line => amap.remove(line));
-                amapLayers.lines = [];
-                
-                if (lines.length === 0) return;
-                
-                lines.forEach(linePoints => {
-                    const polyline = new AMap.Polyline({
-                        path: linePoints,
-                        strokeColor: '#3388FF',
-                        strokeWeight: 4,
-                        strokeOpacity: 0.8
-                    });
-                    amap.add(polyline);
-                    amapLayers.lines.push(polyline);
-                });
-                
-                // 调整视图
-                if (amapLayers.lines.length > 0) {
-                    amap.setFitView(amapLayers.lines);
-                }
-            }
-            
-            function showPolygonsAMap(polygons) {
-                // 清除现有多边形
-                amapLayers.polygons.forEach(polygon => amap.remove(polygon));
-                amapLayers.polygons = [];
-                
-                if (polygons.length === 0) return;
-                
-                console.log('显示多边形数据:', polygons);
-                
-                polygons.forEach(polygonRings => {
-                    const polygon = new AMap.Polygon({
-                        path: polygonRings[0],
-                        fillColor: '#FF6B6B',
-                        fillOpacity: 0.4,
-                        strokeColor: '#FF6B6B',
-                        strokeWeight: 2,
-                        strokeOpacity: 0.8
-                    });
-                    amap.add(polygon);
-                    amapLayers.polygons.push(polygon);
-                });
-                
-                // 调整视图
-                if (amapLayers.polygons.length > 0) {
-                    amap.setFitView(amapLayers.polygons);
-                }
-            }
-            
-            // 百度地图显示函数
+
+            // 百度地图显示函数（保持与原版一致）
             function showPointsBaidu(points) {
-                // 清除现有点
-                baiduLayers.points.forEach(point => baiduMap.removeOverlay(point));
-                baiduLayers.points = [];
-                
+                layers.points.forEach(p => baiduMap.removeOverlay(p));
+                layers.points = [];
                 if (points.length === 0) return;
-                
                 points.forEach(point => {
                     const marker = new BMapGL.Marker(new BMapGL.Point(point[0], point[1]));
                     baiduMap.addOverlay(marker);
-                    baiduLayers.points.push(marker);
+                    layers.points.push(marker);
                 });
-                
-                // 调整视图
-                fitBoundsToDataBaidu(points, 'point');
+                fitBoundsToData(points, 'point');
             }
-            
+
             function showLinesBaidu(lines) {
-                // 清除现有线
-                baiduLayers.lines.forEach(line => baiduMap.removeOverlay(line));
-                baiduLayers.lines = [];
-                
+                layers.lines.forEach(l => baiduMap.removeOverlay(l));
+                layers.lines = [];
                 if (lines.length === 0) return;
-                
                 const allPoints = [];
                 lines.forEach(linePoints => {
-                    const bPoints = linePoints.map(point => new BMapGL.Point(point[0], point[1]));
+                    const bPoints = linePoints.map(p => new BMapGL.Point(p[0], p[1]));
                     const polyline = new BMapGL.Polyline(bPoints, {
                         strokeColor: '#3388FF',
                         strokeWeight: 4,
                         strokeOpacity: 0.8
                     });
                     baiduMap.addOverlay(polyline);
-                    baiduLayers.lines.push(polyline);
+                    layers.lines.push(polyline);
                     allPoints.push(...linePoints);
                 });
-                
-                // 调整视图
-                if (allPoints.length > 0) {
-                    fitBoundsToDataBaidu(allPoints, 'point');
-                }
+                fitBoundsToData(allPoints, 'point');
             }
-            
+
             function showPolygonsBaidu(polygons) {
-                // 清除现有多边形
-                baiduLayers.polygons.forEach(polygon => baiduMap.removeOverlay(polygon));
-                baiduLayers.polygons = [];
-                
+                layers.polygons.forEach(p => baiduMap.removeOverlay(p));
+                layers.polygons = [];
                 if (polygons.length === 0) return;
-                
-                console.log('显示多边形数据:', polygons);
-                
                 const allPoints = [];
                 polygons.forEach(polygonRings => {
-                    const bPoints = polygonRings[0].map(point => new BMapGL.Point(point[0], point[1]));
+                    const bPoints = polygonRings[0].map(p => new BMapGL.Point(p[0], p[1]));
                     const polygon = new BMapGL.Polygon(bPoints, {
                         fillColor: '#FF6B6B',
                         fillOpacity: 0.4,
@@ -978,99 +693,58 @@ MULTIPOLYGON(((116.123 39.456,116.124 39.457,116.125 39.458,116.123 39.456)))">1
                         strokeOpacity: 0.8
                     });
                     baiduMap.addOverlay(polygon);
-                    baiduLayers.polygons.push(polygon);
+                    layers.polygons.push(polygon);
                     allPoints.push(...polygonRings[0]);
                 });
-                
-                // 调整视图
-                if (allPoints.length > 0) {
-                    fitBoundsToDataBaidu(allPoints, 'point');
-                }
+                fitBoundsToData(allPoints, 'point');
             }
-            
-            // 百度地图边界适配
-            function fitBoundsToDataBaidu(points, type) {
+
+            function fitBoundsToData(points, type) {
                 if (!points || points.length === 0) return;
-                
                 const bounds = new BMapGL.Bounds();
                 points.forEach(point => {
-                    if (type === 'point') {
-                        bounds.extend(new BMapGL.Point(point[0], point[1]));
-                    }
+                    bounds.extend(new BMapGL.Point(point[0], point[1]));
                 });
-                
                 baiduMap.setViewport([bounds.getSouthWest(), bounds.getNorthEast()]);
             }
-            
-            // 显示当前标签页的数据
+
             function showCurrent() {
-                console.log('显示当前图形');
                 const activeTab = document.querySelector('.tab.active').getAttribute('data-tab');
-                const inputElement = document.getElementById(`${activeTab}-input`);
-                const input = inputElement.value.trim();
-                
+                const input = document.getElementById(`${activeTab}-input`).value.trim();
                 if (!input) {
                     showStatus(`${getTabName(activeTab)}输入为空`, false);
                     return;
                 }
-                
                 const format = detectFormat(input, activeTab);
                 updateFormatIndicator(activeTab, format);
-                
                 try {
                     let data = [];
                     if (format === 'coords') {
                         if (activeTab === 'points') {
                             data = parsePointsFromCoords(input);
-                            if (currentMap === 'amap') {
-                                showPointsAMap(data);
-                            } else {
-                                showPointsBaidu(data);
-                            }
+                            showPointsBaidu(data);
                             showStatus(`成功显示 ${data.length} 个点`, true);
                         } else if (activeTab === 'lines') {
                             data = parseLinesFromCoords(input);
-                            if (currentMap === 'amap') {
-                                showLinesAMap(data);
-                            } else {
-                                showLinesBaidu(data);
-                            }
+                            showLinesBaidu(data);
                             showStatus(`成功显示 ${data.length} 条线`, true);
                         } else if (activeTab === 'polygons') {
                             data = parsePolygonsFromCoords(input);
-                            console.log('解析出的多边形:', data);
-                            if (currentMap === 'amap') {
-                                showPolygonsAMap(data);
-                            } else {
-                                showPolygonsBaidu(data);
-                            }
+                            showPolygonsBaidu(data);
                             showStatus(`成功显示 ${data.length} 个多边形`, true);
                         }
                     } else if (format === 'wkt') {
                         if (activeTab === 'points') {
                             data = parsePointsFromWKT(input);
-                            if (currentMap === 'amap') {
-                                showPointsAMap(data);
-                            } else {
-                                showPointsBaidu(data);
-                            }
+                            showPointsBaidu(data);
                             showStatus(`成功显示 ${data.length} 个点`, true);
                         } else if (activeTab === 'lines') {
                             data = parseLinesFromWKT(input);
-                            if (currentMap === 'amap') {
-                                showLinesAMap(data);
-                            } else {
-                                showLinesBaidu(data);
-                            }
+                            showLinesBaidu(data);
                             showStatus(`成功显示 ${data.length} 条线`, true);
                         } else if (activeTab === 'polygons') {
                             data = parsePolygonsFromWKT(input);
-                            console.log('解析出的多边形:', data);
-                            if (currentMap === 'amap') {
-                                showPolygonsAMap(data);
-                            } else {
-                                showPolygonsBaidu(data);
-                            }
+                            showPolygonsBaidu(data);
                             showStatus(`成功显示 ${data.length} 个多边形`, true);
                         }
                     } else {
@@ -1081,175 +755,80 @@ MULTIPOLYGON(((116.123 39.456,116.124 39.457,116.125 39.458,116.123 39.456)))">1
                     console.error('解析错误:', error);
                 }
             }
-            
-            // 显示所有数据
+
             function showAll() {
-                console.log('显示所有图形');
-                // 先清除所有
                 clearAll();
-                
-                // 显示所有标签页的数据
                 ['points', 'lines', 'polygons'].forEach(tab => {
-                    const inputElement = document.getElementById(`${tab}-input`);
-                    const input = inputElement.value.trim();
-                    
+                    const input = document.getElementById(`${tab}-input`).value.trim();
                     if (!input) return;
-                    
                     const format = detectFormat(input, tab);
-                    updateFormatIndicator(tab, format);
-                    
                     try {
                         let data = [];
                         if (format === 'coords') {
-                            if (tab === 'points') {
-                                data = parsePointsFromCoords(input);
-                                if (currentMap === 'amap') {
-                                    showPointsAMap(data);
-                                } else {
-                                    showPointsBaidu(data);
-                                }
-                            } else if (tab === 'lines') {
-                                data = parseLinesFromCoords(input);
-                                if (currentMap === 'amap') {
-                                    showLinesAMap(data);
-                                } else {
-                                    showLinesBaidu(data);
-                                }
-                            } else if (tab === 'polygons') {
-                                data = parsePolygonsFromCoords(input);
-                                if (currentMap === 'amap') {
-                                    showPolygonsAMap(data);
-                                } else {
-                                    showPolygonsBaidu(data);
-                                }
-                            }
+                            if (tab === 'points') data = parsePointsFromCoords(input);
+                            else if (tab === 'lines') data = parseLinesFromCoords(input);
+                            else if (tab === 'polygons') data = parsePolygonsFromCoords(input);
                         } else if (format === 'wkt') {
-                            if (tab === 'points') {
-                                data = parsePointsFromWKT(input);
-                                if (currentMap === 'amap') {
-                                    showPointsAMap(data);
-                                } else {
-                                    showPointsBaidu(data);
-                                }
-                            } else if (tab === 'lines') {
-                                data = parseLinesFromWKT(input);
-                                if (currentMap === 'amap') {
-                                    showLinesAMap(data);
-                                } else {
-                                    showLinesBaidu(data);
-                                }
-                            } else if (tab === 'polygons') {
-                                data = parsePolygonsFromWKT(input);
-                                if (currentMap === 'amap') {
-                                    showPolygonsAMap(data);
-                                } else {
-                                    showPolygonsBaidu(data);
-                                }
-                            }
+                            if (tab === 'points') data = parsePointsFromWKT(input);
+                            else if (tab === 'lines') data = parseLinesFromWKT(input);
+                            else if (tab === 'polygons') data = parsePolygonsFromWKT(input);
                         }
-                    } catch (error) {
-                        console.error(`解析${tab}数据错误:`, error);
+                        if (tab === 'points') showPointsBaidu(data);
+                        else if (tab === 'lines') showLinesBaidu(data);
+                        else if (tab === 'polygons') showPolygonsBaidu(data);
+                    } catch (e) {
+                        console.error(`解析${tab}数据错误：`, e);
                     }
                 });
-                
                 showStatus('已显示所有图形数据', true);
             }
-            
+
             function clearAll() {
-                console.log('清除所有图形');
-                if (currentMap === 'amap') {
-                    amapLayers.points.forEach(point => amap.remove(point));
-                    amapLayers.lines.forEach(line => amap.remove(line));
-                    amapLayers.polygons.forEach(polygon => amap.remove(polygon));
-                    amapLayers = { points: [], lines: [], polygons: [] };
-                } else {
-                    baiduLayers.points.forEach(point => baiduMap.removeOverlay(point));
-                    baiduLayers.lines.forEach(line => baiduMap.removeOverlay(line));
-                    baiduLayers.polygons.forEach(polygon => baiduMap.removeOverlay(polygon));
-                    baiduLayers = { points: [], lines: [], polygons: [] };
-                }
+                layers.points.forEach(p => baiduMap.removeOverlay(p));
+                layers.lines.forEach(l => baiduMap.removeOverlay(l));
+                layers.polygons.forEach(p => baiduMap.removeOverlay(p));
+                layers = { points: [], lines: [], polygons: [] };
                 showStatus('已清除所有图形', true);
             }
-            
+
             function getTabName(tab) {
-                const names = {
-                    'points': '点数据',
-                    'lines': '线数据', 
-                    'polygons': '多边形数据'
-                };
-                return names[tab] || '数据';
+                const names = { points: '点数据', lines: '线数据', polygons: '多边形数据' };
+                return names[tab] || tab;
             }
-            
+
             function showStatus(message, isSuccess) {
-                var statusElement = document.getElementById('status-message');
-                statusElement.textContent = message;
-                statusElement.className = 'status-message ' + (isSuccess ? 'status-success' : 'status-error');
-                statusElement.style.display = 'block';
-                
-                setTimeout(function() {
-                    statusElement.style.display = 'none';
-                }, 5000);
+                const el = document.getElementById('status-message');
+                el.textContent = message;
+                el.className = 'status-message ' + (isSuccess ? 'status-success' : 'status-error');
+                el.style.display = 'block';
+                setTimeout(() => el.style.display = 'none', 5000);
             }
-            
-            // 初始化格式检测
+
             function initFormatDetection() {
                 ['points', 'lines', 'polygons'].forEach(tab => {
                     const inputElement = document.getElementById(`${tab}-input`);
-                    inputElement.addEventListener('input', function() {
+                    inputElement.addEventListener('input', function () {
                         const format = detectFormat(this.value, tab);
                         updateFormatIndicator(tab, format);
                     });
-                    // 初始检测
                     const format = detectFormat(inputElement.value, tab);
                     updateFormatIndicator(tab, format);
                 });
             }
-            
-            // 初始化事件监听
+
             function initEventListeners() {
-                console.log('初始化事件监听器');
-                
-                document.getElementById('switch-amap').addEventListener('click', function() {
-                    console.log('点击高德地图按钮');
-                    switchMap('amap');
-                });
-                
-                document.getElementById('switch-baidu').addEventListener('click', function() {
-                    console.log('点击百度地图按钮');
-                    switchMap('baidu');
-                });
-                
-                document.getElementById('show-current-btn').addEventListener('click', function() {
-                    console.log('点击显示当前图形按钮');
-                    showCurrent();
-                });
-                
-                document.getElementById('show-all-btn').addEventListener('click', function() {
-                    console.log('点击显示所有图形按钮');
-                    showAll();
-                });
-                
-                document.getElementById('clear-all-btn').addEventListener('click', function() {
-                    console.log('点击清除所有按钮');
-                    clearAll();
-                });
-                
-                console.log('事件监听器初始化完成');
+                document.getElementById('show-current-btn').addEventListener('click', showCurrent);
+                document.getElementById('show-all-btn').addEventListener('click', showAll);
+                document.getElementById('clear-all-btn').addEventListener('click', clearAll);
             }
-            
-            // 初始化
-            console.log('开始初始化应用');
-            initAMap();
+
+            // 启动
             initBaiduMap();
             initTabs();
             initFormatDetection();
             initEventListeners();
-            
-            // 设置默认地图
-            console.log('设置默认地图');
-            switchMap('amap');
-            
-            console.log('应用初始化完成');
+
+            console.log('精简版（仅百度地图）初始化完成');
         });
     </script>
 </body>
